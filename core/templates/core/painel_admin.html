@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#060608">
+  <title>Painel - Clube de Programação</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/style_painel.css' %}">
+  <style>
+    /* ---- TABS ---- */
+    .tabs-bar {
+      display: flex;
+      gap: 0.25rem;
+      margin-bottom: 2rem;
+      border-bottom: 1px solid var(--border);
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+
+    .tabs-bar::-webkit-scrollbar {
+      display: none;
+    }
+
+    .tab-btn {
+      padding: 0.6rem 1.15rem;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: color 0.2s, border-color 0.2s;
+    }
+
+    .tab-btn:hover {
+      color: var(--text);
+    }
+
+    .tab-btn.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+    }
+
+    .tab-panel {
+      display: none;
+    }
+
+    .tab-panel.active {
+      display: block;
+    }
+
+    /* ---- SETOR HEADER inside tab ---- */
+    .setor-tab-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+      padding: 1rem 1.25rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+    }
+
+    .setor-tab-header h2 {
+      font-size: 1.15rem;
+      font-weight: 700;
+    }
+
+    .setor-tab-header p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-top: 0.2rem;
+    }
+
+    .setor-tab-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    /* ---- SETOR LABEL on member cards ---- */
+    .card-setor {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      margin-top: 0.15rem;
+    }
+
+    .card-setor strong {
+      color: var(--text);
+    }
+
+    /* ---- KANBAN ACTION LINKS ---- */
+    .kanban-card-actions {
+      display: flex;
+      gap: 0.5rem;
+      padding-top: 0.4rem;
+    }
+
+    .kanban-card-actions a {
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-decoration: none;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      transition: background 0.2s;
+    }
+
+    .kanban-card-actions .kbn-edit {
+      color: var(--primary);
+    }
+
+    .kanban-card-actions .kbn-edit:hover {
+      background: rgba(242, 138, 31, 0.1);
+    }
+
+    .kanban-card-actions .kbn-delete {
+      color: var(--error);
+    }
+
+    .kanban-card-actions .kbn-delete:hover {
+      background: rgba(239, 68, 68, 0.1);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="bg-grid" aria-hidden="true"></div>
+
+  <!-- NAVBAR -->
+  <nav class="painel-nav">
+    <a href="{% url 'home' %}" class="nav-logo">
+      <img src="{% static 'images/logo.png' %}" alt="Logo Clube de Programação">
+      <span>Clube de Programação</span>
+    </a>
+    <div class="nav-right">
+      <a href="{% url 'chat_lista' %}" class="nav-link">Chat</a>
+      <span class="nav-user">Olá, {{ membro.usuario.first_name|default:membro.usuario.username }}</span>
+      <form method="POST" action="{% url 'logout' %}" class="logout-form">
+        {% csrf_token %}
+        <button type="submit" class="nav-link nav-logout">Sair</button>
+      </form>
+    </div>
+  </nav>
+
+  <main class="painel-container kanban-container">
+
+    <!-- HEADER -->
+    <div class="painel-header">
+      <div>
+        <h1>{% if membro.is_admin %}Painel do Administrador{% elif membro.is_diretor %}Painel do Diretor{% elif membro.is_antiga_gestao %}Painel - Antiga Gestão{% else %}Painel{% endif %}</h1>
+        <p class="painel-role">{{ membro.get_cargo_display }}</p>
+      </div>
+      <div class="painel-actions">
+        {% if can_create_member %}
+          <a href="{% url 'adicionar_membro' %}" class="btn-primary">+ Novo Membro</a>
+        {% endif %}
+        {% if can_manage_tasks %}
+          <a href="{% url 'criar_tarefa' %}" class="btn-primary">+ Nova Tarefa</a>
+        {% endif %}
+        {% if can_manage_setores %}
+          <a href="{% url 'criar_setor' %}" class="btn-primary">+ Novo Setor</a>
+        {% endif %}
+        {% if solicitacoes_pendentes %}
+          <a href="{% url 'listar_solicitacoes' %}" class="btn-secondary btn-solicitacoes">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+            {{ solicitacoes_pendentes }} solicitaç{{ solicitacoes_pendentes|pluralize:"ão,ões" }} pendente{{ solicitacoes_pendentes|pluralize }}
+          </a>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- MENSAGENS -->
+    {% if messages %}
+      <div class="messages">
+        {% for message in messages %}
+          <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    <!-- TABS BAR -->
+    <div class="tabs-bar" role="tablist">
+      <button class="tab-btn active" role="tab" aria-selected="true" data-tab="tab-todos">Todos</button>
+      {% for setor in setores %}
+        <button class="tab-btn{% if setor_ativo and setor_ativo.id == setor.id %} active{% endif %}" role="tab" aria-selected="false" data-tab="tab-setor-{{ setor.id }}">{{ setor.nome }}</button>
+      {% endfor %}
+      <button class="tab-btn" role="tab" aria-selected="false" data-tab="tab-sem-setor">Sem Setor</button>
+    </div>
+
+    <!-- ==================== TAB: TODOS ==================== -->
+    <div id="tab-todos" class="tab-panel active" role="tabpanel">
+
+      <!-- Membros -->
+      <section class="painel-section">
+        <h2 class="section-title">Todos os Membros</h2>
+        {% if todos_membros %}
+          <div class="cards-grid">
+            {% for m in todos_membros %}
+              <div class="card card-membro">
+                <div class="card-avatar">{{ m.usuario.first_name|make_list|first|default:"?" }}{{ m.usuario.last_name|make_list|first|default:"" }}</div>
+                <div class="card-info">
+                  <h3>{{ m.usuario.get_full_name|default:m.usuario.username }}</h3>
+                  <span class="badge badge-{{ m.cargo }}">{{ m.get_cargo_display }}</span>
+                  <p class="card-date">Desde {{ m.data_entrada|date:"d/m/Y" }}</p>
+                  {% if m.setor %}
+                    <p class="card-setor">Setor: <strong>{{ m.setor.nome }}</strong></p>
+                  {% elif m.cargo != 'presidente' and m.cargo != 'vice_presidente' %}
+                    <p class="card-setor">Sem setor</p>
+                  {% endif %}
+                </div>
+                {% if can_edit_member %}
+                  <div class="card-actions">
+                    <a href="{% url 'editar_membro' m.id %}" class="btn-action btn-edit" title="Editar">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
+                    </a>
+                    {% if can_delete_member %}
+                      <a href="{% url 'excluir_membro' m.id %}" class="btn-action btn-delete" title="Excluir">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                      </a>
+                    {% endif %}
+                  </div>
+                {% endif %}
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p class="empty-state">Nenhum membro cadastrado ainda.</p>
+        {% endif %}
+      </section>
+
+      <!-- Tarefas - Kanban -->
+      <section class="painel-section">
+        <h2 class="section-title">Todas as Tarefas</h2>
+        <div class="kanban-board">
+          <!-- Pendente -->
+          <div class="kanban-column">
+            <div class="kanban-column-header">
+              <span class="kanban-dot dot-pendente"></span>
+              <h3>Pendente</h3>
+              <span class="kanban-count">{{ todas_tarefas_pendente.count }}</span>
+            </div>
+            <div class="kanban-cards">
+              {% for tarefa in todas_tarefas_pendente %}
+                <div class="kanban-card">
+                  <h4>{{ tarefa.titulo }}</h4>
+                  {% if tarefa.descricao %}<p class="kanban-card-desc">{{ tarefa.descricao|truncatewords:15 }}</p>{% endif %}
+                  <div class="kanban-card-meta">
+                    <span>{{ tarefa.responsavel.usuario.get_full_name|default:tarefa.responsavel.usuario.username }}</span>
+                    {% if tarefa.prazo %}<span class="kanban-prazo">{{ tarefa.prazo|date:"d/m/Y" }}</span>{% endif %}
+                  </div>
+                  {% if can_manage_tasks %}
+                    <form method="POST" action="{% url 'atualizar_tarefa' tarefa.id %}" class="kanban-status-form">
+                      {% csrf_token %}
+                      <select name="status" class="kanban-select">
+                        {% for value, label in tarefa.STATUS_CHOICES %}
+                          <option value="{{ value }}" {% if tarefa.status == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                      </select>
+                      <button type="submit" class="btn-small">Mover</button>
+                    </form>
+                    <div class="kanban-card-actions">
+                      <a href="{% url 'editar_tarefa' tarefa.id %}" class="kbn-edit">Editar</a>
+                      {% if can_manage_tasks %}<a href="{% url 'excluir_tarefa' tarefa.id %}" class="kbn-delete">Excluir</a>{% endif %}
+                    </div>
+                  {% endif %}
+                </div>
+              {% empty %}
+                <p class="kanban-empty">Nenhuma tarefa pendente.</p>
+              {% endfor %}
+            </div>
+          </div>
+
+          <!-- Em Andamento -->
+          <div class="kanban-column">
+            <div class="kanban-column-header">
+              <span class="kanban-dot dot-em_andamento"></span>
+              <h3>Em Andamento</h3>
+              <span class="kanban-count">{{ todas_tarefas_em_andamento.count }}</span>
+            </div>
+            <div class="kanban-cards">
+              {% for tarefa in todas_tarefas_em_andamento %}
+                <div class="kanban-card">
+                  <h4>{{ tarefa.titulo }}</h4>
+                  {% if tarefa.descricao %}<p class="kanban-card-desc">{{ tarefa.descricao|truncatewords:15 }}</p>{% endif %}
+                  <div class="kanban-card-meta">
+                    <span>{{ tarefa.responsavel.usuario.get_full_name|default:tarefa.responsavel.usuario.username }}</span>
+                    {% if tarefa.prazo %}<span class="kanban-prazo">{{ tarefa.prazo|date:"d/m/Y" }}</span>{% endif %}
+                  </div>
+                  {% if can_manage_tasks %}
+                    <form method="POST" action="{% url 'atualizar_tarefa' tarefa.id %}" class="kanban-status-form">
+                      {% csrf_token %}
+                      <select name="status" class="kanban-select">
+                        {% for value, label in tarefa.STATUS_CHOICES %}
+                          <option value="{{ value }}" {% if tarefa.status == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                      </select>
+                      <button type="submit" class="btn-small">Mover</button>
+                    </form>
+                    <div class="kanban-card-actions">
+                      <a href="{% url 'editar_tarefa' tarefa.id %}" class="kbn-edit">Editar</a>
+                      {% if can_manage_tasks %}<a href="{% url 'excluir_tarefa' tarefa.id %}" class="kbn-delete">Excluir</a>{% endif %}
+                    </div>
+                  {% endif %}
+                </div>
+              {% empty %}
+                <p class="kanban-empty">Nenhuma tarefa em andamento.</p>
+              {% endfor %}
+            </div>
+          </div>
+
+          <!-- Concluída -->
+          <div class="kanban-column">
+            <div class="kanban-column-header">
+              <span class="kanban-dot dot-concluida"></span>
+              <h3>Concluída</h3>
+              <span class="kanban-count">{{ todas_tarefas_concluida.count }}</span>
+            </div>
+            <div class="kanban-cards">
+              {% for tarefa in todas_tarefas_concluida %}
+                <div class="kanban-card">
+                  <h4>{{ tarefa.titulo }}</h4>
+                  {% if tarefa.descricao %}<p class="kanban-card-desc">{{ tarefa.descricao|truncatewords:15 }}</p>{% endif %}
+                  <div class="kanban-card-meta">
+                    <span>{{ tarefa.responsavel.usuario.get_full_name|default:tarefa.responsavel.usuario.username }}</span>
+                    {% if tarefa.prazo %}<span class="kanban-prazo">{{ tarefa.prazo|date:"d/m/Y" }}</span>{% endif %}
+                  </div>
+                  {% if can_manage_tasks %}
+                    <form method="POST" action="{% url 'atualizar_tarefa' tarefa.id %}" class="kanban-status-form">
+                      {% csrf_token %}
+                      <select name="status" class="kanban-select">
+                        {% for value, label in tarefa.STATUS_CHOICES %}
+                          <option value="{{ value }}" {% if tarefa.status == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                      </select>
+                      <button type="submit" class="btn-small">Mover</button>
+                    </form>
+                    <div class="kanban-card-actions">
+                      <a href="{% url 'editar_tarefa' tarefa.id %}" class="kbn-edit">Editar</a>
+                      {% if can_manage_tasks %}<a href="{% url 'excluir_tarefa' tarefa.id %}" class="kbn-delete">Excluir</a>{% endif %}
+                    </div>
+                  {% endif %}
+                </div>
+              {% empty %}
+                <p class="kanban-empty">Nenhuma tarefa concluída.</p>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- ==================== TABS: PER SETOR ==================== -->
+    {% for setor in setores %}
+      <div id="tab-setor-{{ setor.id }}" class="tab-panel" role="tabpanel">
+
+        <!-- Setor header -->
+        <div class="setor-tab-header">
+          <div>
+            <h2>{{ setor.nome }}</h2>
+            {% if setor.descricao %}
+              <p>{{ setor.descricao }}</p>
+            {% endif %}
+          </div>
+          {% if setor.id in setores_gerenciaveis %}
+            <div class="setor-tab-actions">
+              {% if can_manage_setores %}
+                <a href="{% url 'editar_setor' setor.id %}" class="btn-secondary">Editar Setor</a>
+              {% endif %}
+              {% if can_manage_setores %}
+                <a href="{% url 'excluir_setor' setor.id %}" class="btn-danger">Excluir Setor</a>
+              {% endif %}
+            </div>
+          {% endif %}
+        </div>
+
+        <!-- Membros do setor -->
+        <section class="painel-section">
+          <h2 class="section-title">Membros - {{ setor.nome }}</h2>
+          {% with setor_membros=setor.membros.all %}
+            {% if setor_membros %}
+              <div class="cards-grid">
+                {% for m in setor_membros %}
+                  <div class="card card-membro">
+                    <div class="card-avatar">{{ m.usuario.first_name|make_list|first|default:"?" }}{{ m.usuario.last_name|make_list|first|default:"" }}</div>
+                    <div class="card-info">
+                      <h3>{{ m.usuario.get_full_name|default:m.usuario.username }}</h3>
+                      <span class="badge badge-{{ m.cargo }}">{{ m.get_cargo_display }}</span>
+                      <p class="card-date">Desde {{ m.data_entrada|date:"d/m/Y" }}</p>
+                      <p class="card-setor">Setor: <strong>{{ setor.nome }}</strong></p>
+                    </div>
+                    {% if can_edit_member %}
+                      <div class="card-actions">
+                        <a href="{% url 'editar_membro' m.id %}" class="btn-action btn-edit" title="Editar">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
+                        </a>
+                        {% if can_delete_member %}
+                          <a href="{% url 'excluir_membro' m.id %}" class="btn-action btn-delete" title="Excluir">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                          </a>
+                        {% endif %}
+                      </div>
+                    {% endif %}
+                  </div>
+                {% endfor %}
+              </div>
+            {% else %}
+              <p class="empty-state">Nenhum membro neste setor.</p>
+            {% endif %}
+          {% endwith %}
+        </section>
+
+        <!-- Tarefas do setor - Kanban -->
+        <section class="painel-section">
+          <h2 class="section-title">Tarefas - {{ setor.nome }}</h2>
+          <div class="kanban-board">
+            {% with setor_tarefas=setor.tarefas.all %}
+              <!-- Pendente -->
+              <div class="kanban-column">
+                <div class="kanban-column-header">
+                  <span class="kanban-dot dot-pendente"></span>
+                  <h3>Pendente</h3>
+                </div>
+                <div class="kanban-cards">
+                  {% for tarefa in setor_tarefas %}
+                    {% if tarefa.status == 'pendente' %}
+                      <div class="kanban-card">
+                        <h4>{{ tarefa.titulo }}</h4>
+                        {% if tarefa.descricao %}<p class="kanban-card-desc">{{ tarefa.descricao|truncatewords:15 }}</p>{% endif %}
+                        <div class="kanban-card-meta">
+                          <span>{{ tarefa.responsavel.usuario.get_full_name|default:tarefa.responsavel.usuario.username }}</span>
+                          {% if tarefa.prazo %}<span class="kanban-prazo">{{ tarefa.prazo|date:"d/m/Y" }}</span>{% endif %}
+                        </div>
+                        {% if can_manage_tasks %}
+                          <form method="POST" action="{% url 'atualizar_tarefa' tarefa.id %}" class="kanban-status-form">
+                            {% csrf_token %}
+                            <select name="status" class="kanban-select">
+                              {% for value, label in tarefa.STATUS_CHOICES %}
+                                <option value="{{ value }}" {% if tarefa.status == value %}selected{% endif %}>{{ label }}</option>
+                              {% endfor %}
+                            </select>
+                            <button type="submit" class="btn-small">Mover</button>
+                          </form>
+                          <div class="kanban-card-actions">
+                            <a href="{% url 'editar_tarefa' tarefa.id %}" class="kbn-edit">Editar</a>
+                            {% if can_manage_tasks %}<a href="{% url 'excluir_tarefa' tarefa.id %}" class="kbn-delete">Excluir</a>{% endif %}
+                          </div>
+                        {% endif %}
+                      </div>
+                    {% endif %}
+                  {% endfor %}
+                </div>
+              </div>
+
+              <!-- Em Andamento -->
+              <div class="kanban-column">
+                <div class="kanban-column-header">
+                  <span class="kanban-dot dot-em_andamento"></span>
+                  <h3>Em Andamento</h3>
+                </div>
+                <div class="kanban-cards">
+                  {% for tarefa in setor_tarefas %}
+                    {% if tarefa.status == 'em_andamento' %}
+                      <div class="kanban-card">
+                        <h4>{{ tarefa.titulo }}</h4>
+                        {% if tarefa.descricao %}<p class="kanban-card-desc">{{ tarefa.descricao|truncatewords:15 }}</p>{% endif %}
+                        <div class="kanban-card-meta">
+                          <span>{{ tarefa.responsavel.usuario.get_full_name|default:tarefa.responsavel.usuario.username }}</span>
+                          {% if tarefa.prazo %}<span class="kanban-prazo">{{ tarefa.prazo|date:"d/m/Y" }}</span>{% endif %}
+                        </div>
+                        {% if can_manage_tasks %}
+                          <form method="POST" action="{% url 'atualizar_tarefa' tarefa.id %}" class="kanban-status-form">
+                            {% csrf_token %}
+                            <select name="status" class="kanban-select">
+                              {% for value, label in tarefa.STATUS_CHOICES %}
+                                <option value="{{ value }}" {% if tarefa.status == value %}selected{% endif %}>{{ label }}</option>
+                              {% endfor %}
+                            </select>
+                            <button type="submit" class="btn-small">Mover</button>
+                          </form>
+                          <div class="kanban-card-actions">
+                            <a href="{% url 'editar_tarefa' tarefa.id %}" class="kbn-edit">Editar</a>
+                            {% if can_manage_tasks %}<a href="{% url 'excluir_tarefa' tarefa.id %}" class="kbn-delete">Excluir</a>{% endif %}
+                          </div>
+                        {% endif %}
+                      </div>
+                    {% endif %}
+                  {% endfor %}
+                </div>
+              </div>
+
+              <!-- Concluída -->
+              <div class="kanban-column">
+                <div class="kanban-column-header">
+                  <span class="kanban-dot dot-concluida"></span>
+                  <h3>Concluída</h3>
+                </div>
+                <div class="kanban-cards">
+                  {% for tarefa in setor_tarefas %}
+                    {% if tarefa.status == 'concluida' %}
+                      <div class="kanban-card">
+                        <h4>{{ tarefa.titulo }}</h4>
+                        {% if tarefa.descricao %}<p class="kanban-card-desc">{{ tarefa.descricao|truncatewords:15 }}</p>{% endif %}
+                        <div class="kanban-card-meta">
+                          <span>{{ tarefa.responsavel.usuario.get_full_name|default:tarefa.responsavel.usuario.username }}</span>
+                          {% if tarefa.prazo %}<span class="kanban-prazo">{{ tarefa.prazo|date:"d/m/Y" }}</span>{% endif %}
+                        </div>
+                        {% if can_manage_tasks %}
+                          <form method="POST" action="{% url 'atualizar_tarefa' tarefa.id %}" class="kanban-status-form">
+                            {% csrf_token %}
+                            <select name="status" class="kanban-select">
+                              {% for value, label in tarefa.STATUS_CHOICES %}
+                                <option value="{{ value }}" {% if tarefa.status == value %}selected{% endif %}>{{ label }}</option>
+                              {% endfor %}
+                            </select>
+                            <button type="submit" class="btn-small">Mover</button>
+                          </form>
+                          <div class="kanban-card-actions">
+                            <a href="{% url 'editar_tarefa' tarefa.id %}" class="kbn-edit">Editar</a>
+                            {% if can_manage_tasks %}<a href="{% url 'excluir_tarefa' tarefa.id %}" class="kbn-delete">Excluir</a>{% endif %}
+                          </div>
+                        {% endif %}
+                      </div>
+                    {% endif %}
+                  {% endfor %}
+                </div>
+              </div>
+            {% endwith %}
+          </div>
+        </section>
+
+      </div>
+    {% endfor %}
+
+    <!-- ==================== TAB: SEM SETOR ==================== -->
+    <div id="tab-sem-setor" class="tab-panel" role="tabpanel">
+
+      <!-- Membros sem setor -->
+      <section class="painel-section">
+        <h2 class="section-title">Membros sem Setor</h2>
+        {% if membros_sem_setor %}
+          <div class="cards-grid">
+            {% for m in membros_sem_setor %}
+              <div class="card card-membro">
+                <div class="card-avatar">{{ m.usuario.first_name|make_list|first|default:"?" }}{{ m.usuario.last_name|make_list|first|default:"" }}</div>
+                <div class="card-info">
+                  <h3>{{ m.usuario.get_full_name|default:m.usuario.username }}</h3>
+                  <span class="badge badge-{{ m.cargo }}">{{ m.get_cargo_display }}</span>
+                  <p class="card-date">Desde {{ m.data_entrada|date:"d/m/Y" }}</p>
+                  {% if m.cargo != 'presidente' and m.cargo != 'vice_presidente' %}
+                    <p class="card-setor">Sem setor</p>
+                  {% endif %}
+                </div>
+                {% if can_edit_member %}
+                  <div class="card-actions">
+                    <a href="{% url 'editar_membro' m.id %}" class="btn-action btn-edit" title="Editar">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
+                    </a>
+                    {% if can_delete_member %}
+                      <a href="{% url 'excluir_membro' m.id %}" class="btn-action btn-delete" title="Excluir">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                      </a>
+                    {% endif %}
+                  </div>
+                {% endif %}
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p class="empty-state">Todos os membros possuem setor.</p>
+        {% endif %}
+      </section>
+
+      <!-- Tarefas sem setor - Kanban -->
+      <section class="painel-section">
+        <h2 class="section-title">Tarefas sem Setor</h2>
+        <div class="kanban-board">
+          <!-- Pendente -->
+          <div class="kanban-column">
+            <div class="kanban-column-header">
+              <span class="kanban-dot dot-pendente"></span>
+              <h3>Pendente</h3>
+              <span class="kanban-count">{{ tarefas_sem_setor_pendente.count }}</span>
+            </div>
+            <div class="kanban-cards">
+              {% for tarefa in tarefas_sem_setor_pendente %}
+                <div class="kanban-card">
+                  <h4>{{ tarefa.titulo }}</h4>
+                  {% if tarefa.descricao %}<p class="kanban-card-desc">{{ tarefa.descricao|truncatewords:15 }}</p>{% endif %}
+                  <div class="kanban-card-meta">
+                    <span>{{ tarefa.responsavel.usuario.get_full_name|default:tarefa.responsavel.usuario.username }}</span>
+                    {% if tarefa.prazo %}<span class="kanban-prazo">{{ tarefa.prazo|date:"d/m/Y" }}</span>{% endif %}
+                  </div>
+                  {% if can_manage_tasks %}
+                    <form method="POST" action="{% url 'atualizar_tarefa' tarefa.id %}" class="kanban-status-form">
+                      {% csrf_token %}
+                      <select name="status" class="kanban-select">
+                        {% for value, label in tarefa.STATUS_CHOICES %}
+                          <option value="{{ value }}" {% if tarefa.status == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                      </select>
+                      <button type="submit" class="btn-small">Mover</button>
+                    </form>
+                    <div class="kanban-card-actions">
+                      <a href="{% url 'editar_tarefa' tarefa.id %}" class="kbn-edit">Editar</a>
+                      {% if can_manage_tasks %}<a href="{% url 'excluir_tarefa' tarefa.id %}" class="kbn-delete">Excluir</a>{% endif %}
+                    </div>
+                  {% endif %}
+                </div>
+              {% empty %}
+                <p class="kanban-empty">Nenhuma tarefa pendente.</p>
+              {% endfor %}
+            </div>
+          </div>
+
+          <!-- Em Andamento -->
+          <div class="kanban-column">
+            <div class="kanban-column-header">
+              <span class="kanban-dot dot-em_andamento"></span>
+              <h3>Em Andamento</h3>
+              <span class="kanban-count">{{ tarefas_sem_setor_em_andamento.count }}</span>
+            </div>
+            <div class="kanban-cards">
+              {% for tarefa in tarefas_sem_setor_em_andamento %}
+                <div class="kanban-card">
+                  <h4>{{ tarefa.titulo }}</h4>
+                  {% if tarefa.descricao %}<p class="kanban-card-desc">{{ tarefa.descricao|truncatewords:15 }}</p>{% endif %}
+                  <div class="kanban-card-meta">
+                    <span>{{ tarefa.responsavel.usuario.get_full_name|default:tarefa.responsavel.usuario.username }}</span>
+                    {% if tarefa.prazo %}<span class="kanban-prazo">{{ tarefa.prazo|date:"d/m/Y" }}</span>{% endif %}
+                  </div>
+                  {% if can_manage_tasks %}
+                    <form method="POST" action="{% url 'atualizar_tarefa' tarefa.id %}" class="kanban-status-form">
+                      {% csrf_token %}
+                      <select name="status" class="kanban-select">
+                        {% for value, label in tarefa.STATUS_CHOICES %}
+                          <option value="{{ value }}" {% if tarefa.status == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                      </select>
+                      <button type="submit" class="btn-small">Mover</button>
+                    </form>
+                    <div class="kanban-card-actions">
+                      <a href="{% url 'editar_tarefa' tarefa.id %}" class="kbn-edit">Editar</a>
+                      {% if can_manage_tasks %}<a href="{% url 'excluir_tarefa' tarefa.id %}" class="kbn-delete">Excluir</a>{% endif %}
+                    </div>
+                  {% endif %}
+                </div>
+              {% empty %}
+                <p class="kanban-empty">Nenhuma tarefa em andamento.</p>
+              {% endfor %}
+            </div>
+          </div>
+
+          <!-- Concluída -->
+          <div class="kanban-column">
+            <div class="kanban-column-header">
+              <span class="kanban-dot dot-concluida"></span>
+              <h3>Concluída</h3>
+              <span class="kanban-count">{{ tarefas_sem_setor_concluida.count }}</span>
+            </div>
+            <div class="kanban-cards">
+              {% for tarefa in tarefas_sem_setor_concluida %}
+                <div class="kanban-card">
+                  <h4>{{ tarefa.titulo }}</h4>
+                  {% if tarefa.descricao %}<p class="kanban-card-desc">{{ tarefa.descricao|truncatewords:15 }}</p>{% endif %}
+                  <div class="kanban-card-meta">
+                    <span>{{ tarefa.responsavel.usuario.get_full_name|default:tarefa.responsavel.usuario.username }}</span>
+                    {% if tarefa.prazo %}<span class="kanban-prazo">{{ tarefa.prazo|date:"d/m/Y" }}</span>{% endif %}
+                  </div>
+                  {% if can_manage_tasks %}
+                    <form method="POST" action="{% url 'atualizar_tarefa' tarefa.id %}" class="kanban-status-form">
+                      {% csrf_token %}
+                      <select name="status" class="kanban-select">
+                        {% for value, label in tarefa.STATUS_CHOICES %}
+                          <option value="{{ value }}" {% if tarefa.status == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                      </select>
+                      <button type="submit" class="btn-small">Mover</button>
+                    </form>
+                    <div class="kanban-card-actions">
+                      <a href="{% url 'editar_tarefa' tarefa.id %}" class="kbn-edit">Editar</a>
+                      {% if can_manage_tasks %}<a href="{% url 'excluir_tarefa' tarefa.id %}" class="kbn-delete">Excluir</a>{% endif %}
+                    </div>
+                  {% endif %}
+                </div>
+              {% empty %}
+                <p class="kanban-empty">Nenhuma tarefa concluída.</p>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+  </main>
+
+  <script>
+    (function () {
+      var buttons = document.querySelectorAll('.tab-btn');
+      var panels = document.querySelectorAll('.tab-panel');
+
+      function activateTab(targetId) {
+        buttons.forEach(function (btn) {
+          var isActive = btn.getAttribute('data-tab') === targetId;
+          btn.classList.toggle('active', isActive);
+          btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
+        });
+        panels.forEach(function (panel) {
+          panel.classList.toggle('active', panel.id === targetId);
+        });
+      }
+
+      buttons.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          activateTab(this.getAttribute('data-tab'));
+        });
+      });
+
+      // If setor_ativo is set from the server, activate that tab on load
+      {% if setor_ativo %}
+        activateTab('tab-setor-{{ setor_ativo.id }}');
+      {% endif %}
+    })();
+  </script>
+
+</body>
+</html>

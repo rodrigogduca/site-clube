@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#060608">
+  <title>Editar Membro - Clube de Programação</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/style_painel.css' %}">
+</head>
+<body>
+
+  <div class="bg-grid" aria-hidden="true"></div>
+
+  <nav class="painel-nav">
+    <a href="{% url 'home' %}" class="nav-logo">
+      <img src="{% static 'images/logo.png' %}" alt="Logo Clube de Programação">
+      <span>Clube de Programação</span>
+    </a>
+    <div class="nav-right">
+      <a href="{% url 'painel' %}" class="nav-link">Voltar ao Painel</a>
+      <form method="POST" action="{% url 'logout' %}" class="logout-form">
+        {% csrf_token %}
+        <button type="submit" class="nav-link nav-logout">Sair</button>
+      </form>
+    </div>
+  </nav>
+
+  <main class="painel-container">
+    <div class="form-page">
+      <h1>Editar Membro</h1>
+      <p class="form-subtitle">Editando: {{ membro.usuario.get_full_name|default:membro.usuario.username }}</p>
+
+      <div class="form-card">
+        <form method="POST">
+          {% csrf_token %}
+
+          {% if form.errors %}
+            <div class="error-messages">
+              <ul>
+              {% for field in form %}
+                {% for error in field.errors %}
+                  <li>{{ error }}</li>
+                {% endfor %}
+              {% endfor %}
+              {% for error in form.non_field_errors %}
+                <li>{{ error }}</li>
+              {% endfor %}
+              </ul>
+            </div>
+          {% endif %}
+
+          {% for field in form %}
+            <div class="form-group">
+              <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+              {{ field }}
+            </div>
+          {% endfor %}
+
+          <div class="form-buttons">
+            <button type="submit" class="btn-primary">Salvar Alterações</button>
+            <a href="{% url 'painel' %}" class="btn-secondary">Cancelar</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <script>
+  // Toggle setor visibility based on cargo
+  (function() {
+    var cargoSelect = document.getElementById('id_cargo');
+    var setorField = document.getElementById('id_setor');
+    if (!cargoSelect || !setorField) return;
+    var setorGroup = setorField.closest('.form-group');
+    function toggleSetor() {
+      var cargo = cargoSelect.value;
+      if (cargo === 'presidente' || cargo === 'vice_presidente') {
+        setorGroup.style.display = 'none';
+        setorField.value = '';
+      } else {
+        setorGroup.style.display = '';
+      }
+    }
+    cargoSelect.addEventListener('change', toggleSetor);
+    toggleSetor();
+  })();
+
+  document.querySelectorAll('input[type="password"]').forEach(function(input) {
+    var wrapper = document.createElement('div');
+    wrapper.className = 'password-wrapper';
+    input.parentNode.insertBefore(wrapper, input);
+    wrapper.appendChild(input);
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'password-toggle';
+    btn.setAttribute('aria-label', 'Mostrar senha');
+    btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+    btn.addEventListener('click', function() {
+      var isPassword = input.type === 'password';
+      input.type = isPassword ? 'text' : 'password';
+      btn.innerHTML = isPassword
+        ? '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>'
+        : '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+    });
+    wrapper.appendChild(btn);
+  });
+  </script>
+
+</body>
+</html>

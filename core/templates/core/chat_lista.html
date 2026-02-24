@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+{% load static %}
+{% load chat_tags %}
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#060608">
+  <title>Chat - Clube de Programação</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/style_painel.css' %}">
+  <style>
+    .chat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    .chat-list-section { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 1.25rem; }
+    .chat-list-section h2 { font-size: 1rem; font-weight: 700; margin-bottom: 1rem; color: #fff; }
+    .chat-item { display: flex; align-items: center; gap: 0.5rem; padding: 0.75rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.06); margin-bottom: 0.5rem; transition: background 0.2s; }
+    .chat-item:hover { background: rgba(255,255,255,0.04); }
+    .chat-item-link { flex: 1; text-decoration: none; color: inherit; }
+    .chat-item-info { flex: 1; }
+    .chat-item-name { font-weight: 600; color: #fff; font-size: 0.9rem; }
+    .chat-item-meta { font-size: 0.75rem; color: rgba(255,255,255,0.4); margin-top: 0.15rem; }
+    .chat-item-tag { display: inline-block; font-size: 0.65rem; padding: 0.1rem 0.4rem; border-radius: 4px; background: rgba(59,130,246,0.15); color: #3b82f6; margin-left: 0.4rem; font-weight: 600; }
+    .chat-item-actions { display: flex; gap: 0.3rem; flex-shrink: 0; }
+    .btn-chat-action { padding: 0.3rem 0.6rem; font-size: 0.7rem; font-weight: 600; border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; background: none; color: var(--text-muted); cursor: pointer; transition: all 0.2s; font-family: 'Inter', sans-serif; }
+    .btn-chat-action:hover { border-color: var(--primary); color: var(--primary); background: rgba(242,138,31,0.08); }
+    .btn-chat-delete { color: var(--error); }
+    .btn-chat-delete:hover { border-color: var(--error); color: var(--error); background: rgba(239,68,68,0.08); }
+    .member-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.6rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.06); margin-bottom: 0.5rem; }
+    .member-item-avatar { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #F28A1F, #f59e0b); display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 700; color: #060608; flex-shrink: 0; }
+    .member-item-info { flex: 1; }
+    .member-item-name { font-weight: 600; color: #fff; font-size: 0.85rem; }
+    .rename-modal { display: none; position: fixed; inset: 0; z-index: 200; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); align-items: center; justify-content: center; padding: 24px; }
+    .rename-modal.open { display: flex; }
+    .rename-modal-card { background: rgba(12,12,16,0.95); border: 1px solid rgba(242,138,31,0.15); border-radius: 16px; padding: 2rem; max-width: 400px; width: 100%; }
+    .rename-modal-card h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 1rem; }
+    .rename-modal-card .form-input { margin-bottom: 1rem; }
+    .rename-modal-card .form-buttons { display: flex; gap: 0.75rem; }
+    @media (max-width: 768px) { .chat-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+
+  <div class="bg-grid" aria-hidden="true"></div>
+
+  <nav class="painel-nav">
+    <a href="{% url 'home' %}" class="nav-logo">
+      <img src="{% static 'images/logo.png' %}" alt="Logo Clube de Programação">
+      <span>Clube de Programação</span>
+    </a>
+    <div class="nav-right">
+      <a href="{% url 'painel' %}" class="nav-link">Voltar ao Painel</a>
+      <span class="nav-user">Olá, {{ user.first_name|default:user.username }}</span>
+      <form method="POST" action="{% url 'logout' %}" class="logout-form">
+        {% csrf_token %}
+        <button type="submit" class="nav-link nav-logout">Sair</button>
+      </form>
+    </div>
+  </nav>
+
+  <main class="painel-container">
+
+    <div class="painel-header">
+      <div>
+        <h1>Chat</h1>
+        <p class="painel-role">Conversas e mensagens</p>
+      </div>
+    </div>
+
+    {% if messages %}
+      <div class="messages">
+        {% for message in messages %}
+          <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    <div class="chat-grid">
+
+      <!-- Conversas existentes -->
+      <div class="chat-list-section">
+        <h2>Suas Conversas</h2>
+        {% for conversa in conversas %}
+          <div class="chat-item">
+            <a href="{% url 'chat_conversa' conversa.id %}" class="chat-item-link">
+              <div class="chat-item-info">
+                <div class="chat-item-name">
+                  {{ conversa|display_name:membro }}
+                  {% if conversa.tipo == 'grupo' %}<span class="chat-item-tag">Grupo</span>{% endif %}
+                </div>
+                <div class="chat-item-meta">{{ conversa.participantes.count }} participante{{ conversa.participantes.count|pluralize:"s" }}</div>
+              </div>
+            </a>
+            <div class="chat-item-actions">
+              <button type="button" class="btn-chat-action" onclick="openRenameModal({{ conversa.id }}, '{{ conversa|display_name:membro|escapejs }}')">Renomear</button>
+              {% if conversa.tipo == 'individual' or membro.is_admin %}
+              <form method="POST" action="{% url 'excluir_conversa' conversa.id %}" style="margin:0;" onsubmit="return confirm('Tem certeza que deseja excluir esta conversa? Todas as mensagens serão perdidas.')">
+                {% csrf_token %}
+                <button type="submit" class="btn-chat-action btn-chat-delete">Excluir</button>
+              </form>
+              {% endif %}
+            </div>
+          </div>
+        {% empty %}
+          <p class="empty-state">Nenhuma conversa ainda.</p>
+        {% endfor %}
+      </div>
+
+      <!-- Iniciar nova conversa -->
+      <div class="chat-list-section">
+        <h2>Iniciar Nova Conversa</h2>
+        {% for m in outros_membros %}
+          <div class="member-item">
+            <div class="member-item-avatar">{{ m.usuario.first_name|make_list|first|default:"?" }}{{ m.usuario.last_name|make_list|first|default:"" }}</div>
+            <div class="member-item-info">
+              <div class="member-item-name">{{ m.usuario.get_full_name|default:m.usuario.username }}</div>
+              <span class="badge badge-{{ m.cargo }}" style="font-size:0.65rem;padding:0.1rem 0.4rem;">{{ m.get_cargo_display }}</span>
+            </div>
+            <a href="{% url 'chat_nova_individual' m.id %}" class="btn-small" style="text-decoration:none;">Conversar</a>
+          </div>
+        {% empty %}
+          <p class="empty-state">Nenhum outro membro disponível.</p>
+        {% endfor %}
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- Rename Modal -->
+  <div class="rename-modal" id="renameModal">
+    <div class="rename-modal-card">
+      <h3>Renomear Conversa</h3>
+      <form method="POST" id="renameForm">
+        {% csrf_token %}
+        <input type="text" name="novo_nome" class="form-input" id="renameInput" placeholder="Novo nome da conversa" required>
+        <div class="form-buttons">
+          <button type="button" onclick="closeRenameModal()" class="btn-secondary">Cancelar</button>
+          <button type="submit" class="btn-primary">Salvar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    function openRenameModal(conversaId, currentName) {
+      document.getElementById('renameForm').action = '/painel/chat/' + conversaId + '/renomear/';
+      document.getElementById('renameInput').value = currentName;
+      document.getElementById('renameModal').classList.add('open');
+    }
+    function closeRenameModal() {
+      document.getElementById('renameModal').classList.remove('open');
+    }
+    document.getElementById('renameModal').addEventListener('click', function(e) {
+      if (e.target === this) closeRenameModal();
+    });
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') closeRenameModal();
+    });
+  </script>
+
+</body>
+</html>

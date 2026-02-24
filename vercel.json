@@ -1,0 +1,18 @@
+{
+  "builds": [
+    {
+      "src": "clube_de_programacao/wsgi.py",
+      "use": "@vercel/python",
+      "config": {
+        "maxLambdaSize": "15mb",
+        "runtime": "python3.12"
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "clube_de_programacao/wsgi.py"
+    }
+  ]
+}

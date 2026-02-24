@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#060608">
+  <title>Excluir Membro - Clube de Programação</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/style_painel.css' %}">
+</head>
+<body>
+
+  <div class="bg-grid" aria-hidden="true"></div>
+
+  <nav class="painel-nav">
+    <a href="{% url 'home' %}" class="nav-logo">
+      <img src="{% static 'images/logo.png' %}" alt="Logo Clube de Programação">
+      <span>Clube de Programação</span>
+    </a>
+    <div class="nav-right">
+      <a href="{% url 'painel' %}" class="nav-link">Voltar ao Painel</a>
+      <form method="POST" action="{% url 'logout' %}" class="logout-form">
+        {% csrf_token %}
+        <button type="submit" class="nav-link nav-logout">Sair</button>
+      </form>
+    </div>
+  </nav>
+
+  <main class="painel-container">
+    <div class="form-page">
+      <h1>Excluir Membro</h1>
+      <p class="form-subtitle">Esta ação não pode ser desfeita.</p>
+
+      <div class="form-card">
+        <div class="confirm-info">
+          <div class="card-avatar">{{ membro.usuario.first_name|make_list|first|default:"?" }}{{ membro.usuario.last_name|make_list|first|default:"" }}</div>
+          <h3>{{ membro.usuario.get_full_name|default:membro.usuario.username }}</h3>
+          <span class="badge badge-{{ membro.cargo }}">{{ membro.get_cargo_display }}</span>
+          <p class="card-date">Membro desde {{ membro.data_entrada|date:"d/m/Y" }}</p>
+        </div>
+
+        <p class="confirm-warning">Tem certeza que deseja excluir este membro? Todas as tarefas atribuídas a ele também serão removidas.</p>
+
+        <form method="POST">
+          {% csrf_token %}
+          <div class="form-buttons">
+            <button type="submit" class="btn-danger">Sim, Excluir</button>
+            <a href="{% url 'painel' %}" class="btn-secondary">Cancelar</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </main>
+
+</body>
+</html>

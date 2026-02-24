@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#060608">
+  <title>Solicitações de Cadastro - Clube de Programação</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/style_painel.css' %}">
+  <style>
+    .filter-bar {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .filter-btn {
+      padding: 0.5rem 1rem;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 600;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .filter-btn:hover {
+      border-color: var(--border-hover);
+      color: var(--text);
+    }
+
+    .filter-btn.active {
+      background: var(--primary);
+      color: var(--bg);
+      border-color: var(--primary);
+    }
+
+    .solicitacao-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+      transition: border-color 0.2s;
+    }
+
+    .solicitacao-card:hover {
+      border-color: var(--border-hover);
+    }
+
+    .solicitacao-info h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+    }
+
+    .solicitacao-info p {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      margin-bottom: 0.15rem;
+    }
+
+    .solicitacao-info .sol-date {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      opacity: 0.7;
+    }
+
+    .solicitacao-actions {
+      display: flex;
+      gap: 0.5rem;
+      flex-shrink: 0;
+    }
+
+    .btn-aprovar, .btn-rejeitar {
+      padding: 0.5rem 1rem;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 600;
+      border: none;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-aprovar {
+      background: rgba(34, 197, 94, 0.15);
+      color: var(--success);
+      border: 1px solid rgba(34, 197, 94, 0.2);
+    }
+
+    .btn-aprovar:hover {
+      background: rgba(34, 197, 94, 0.25);
+    }
+
+    .btn-rejeitar {
+      background: rgba(239, 68, 68, 0.15);
+      color: var(--error);
+      border: 1px solid rgba(239, 68, 68, 0.2);
+    }
+
+    .btn-rejeitar:hover {
+      background: rgba(239, 68, 68, 0.25);
+    }
+
+    .btn-editar {
+      padding: 0.5rem 1rem;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 600;
+      border: 1px solid rgba(242, 138, 31, 0.25);
+      border-radius: var(--radius-sm);
+      background: rgba(242, 138, 31, 0.15);
+      color: var(--primary);
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .btn-editar:hover {
+      background: rgba(242, 138, 31, 0.25);
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 0.2rem 0.6rem;
+      border-radius: 4px;
+      font-size: 0.72rem;
+      font-weight: 600;
+    }
+
+    .status-aprovada {
+      background: rgba(34, 197, 94, 0.12);
+      color: var(--success);
+    }
+
+    .status-rejeitada {
+      background: rgba(239, 68, 68, 0.12);
+      color: var(--error);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="bg-grid" aria-hidden="true"></div>
+
+  <!-- NAVBAR -->
+  <nav class="painel-nav">
+    <a href="{% url 'home' %}" class="nav-logo">
+      <img src="{% static 'images/logo.png' %}" alt="Logo Clube de Programação">
+      <span>Clube de Programação</span>
+    </a>
+    <div class="nav-right">
+      <a href="{% url 'painel' %}" class="nav-link">Voltar ao Painel</a>
+      <form method="POST" action="{% url 'logout' %}" class="logout-form">
+        {% csrf_token %}
+        <button type="submit" class="nav-link nav-logout">Sair</button>
+      </form>
+    </div>
+  </nav>
+
+  <main class="painel-container">
+
+    <div class="painel-header">
+      <div>
+        <h1>Solicitações de Cadastro</h1>
+        <p class="painel-role">Gerencie as solicitações de novos membros</p>
+      </div>
+    </div>
+
+    <!-- MENSAGENS -->
+    {% if messages %}
+      <div class="messages">
+        {% for message in messages %}
+          <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    <!-- FILTER -->
+    <div class="filter-bar">
+      <a href="?status=pendente" class="filter-btn {% if filtro_atual == 'pendente' %}active{% endif %}">Pendentes</a>
+      <a href="?status=aprovada" class="filter-btn {% if filtro_atual == 'aprovada' %}active{% endif %}">Aprovadas</a>
+      <a href="?status=rejeitada" class="filter-btn {% if filtro_atual == 'rejeitada' %}active{% endif %}">Rejeitadas</a>
+    </div>
+
+    <!-- LIST -->
+    {% for sol in solicitacoes %}
+      <div class="solicitacao-card">
+        <div class="solicitacao-info">
+          <h3>{{ sol.first_name }} {{ sol.last_name }}</h3>
+          <p>Usuário: <strong>{{ sol.username }}</strong></p>
+          <p>E-mail: {{ sol.email }}</p>
+          <span class="sol-date">{{ sol.data_solicitacao|date:"d/m/Y H:i" }}</span>
+          {% if filtro_atual == 'aprovada' %}
+            <span class="status-badge status-aprovada">Aprovada</span>
+          {% elif filtro_atual == 'rejeitada' %}
+            <span class="status-badge status-rejeitada">Rejeitada</span>
+          {% endif %}
+        </div>
+        {% if filtro_atual == 'pendente' %}
+          <div class="solicitacao-actions">
+            <a href="{% url 'editar_solicitacao' sol.id %}" class="btn-editar">Editar</a>
+            <form method="POST" action="{% url 'aprovar_solicitacao' sol.id %}">
+              {% csrf_token %}
+              <button type="submit" class="btn-aprovar">Aprovar</button>
+            </form>
+            <form method="POST" action="{% url 'rejeitar_solicitacao' sol.id %}">
+              {% csrf_token %}
+              <button type="submit" class="btn-rejeitar">Rejeitar</button>
+            </form>
+          </div>
+        {% else %}
+          <div class="solicitacao-actions">
+            <form method="POST" action="{% url 'excluir_solicitacao' sol.id %}" onsubmit="return confirm('Tem certeza que deseja excluir esta solicitação do histórico?')">
+              {% csrf_token %}
+              <button type="submit" class="btn-rejeitar">Excluir</button>
+            </form>
+          </div>
+        {% endif %}
+      </div>
+    {% empty %}
+      <p class="empty-state">
+        {% if filtro_atual == 'pendente' %}
+          Nenhuma solicitação pendente.
+        {% elif filtro_atual == 'aprovada' %}
+          Nenhuma solicitação aprovada.
+        {% else %}
+          Nenhuma solicitação rejeitada.
+        {% endif %}
+      </p>
+    {% endfor %}
+
+  </main>
+
+</body>
+</html>
