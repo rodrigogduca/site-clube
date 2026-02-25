@@ -13,6 +13,7 @@ Sistema web para gestao interna do Clube de Programacao. Permite que administrad
 - Criar, editar e excluir tarefas e atribui-las a membros
 - Criar, editar e excluir setores
 - Gerenciar solicitacoes de cadastro (aprovar/rejeitar)
+- Visualizar a senha informada pelo solicitante antes de aprovar
 - Visualizar todos os membros e tarefas no painel
 
 ### Diretor
@@ -25,10 +26,18 @@ Sistema web para gestao interna do Clube de Programacao. Permite que administrad
 
 ### Geral
 - Autenticacao com login por username ou email
+- Solicitacao de cadastro por novos membros (com aprovacao)
+- Recuperacao de senha via email (requer configuracao SMTP)
 - Chat em tempo real (Pusher)
-- Solicitacao de cadastro por novos membros
-- Pagina inicial publica
+- Pagina inicial publica com efeito visual fullscreen
 - Interface com tema escuro
+
+### Seguranca
+- Presidente e vice nao podem editar ou excluir o administrador
+- Senha do solicitante e apagada apos aprovacao ou rejeicao
+- Sessoes via cookies assinados (sem dependencia de banco para sessoes)
+- CSRF e HSTS configuraveis para producao
+- Login por username ou email via backend customizado
 
 ## Tecnologias
 
@@ -40,6 +49,18 @@ Sistema web para gestao interna do Clube de Programacao. Permite que administrad
 | **Deploy** | Vercel (WSGI) |
 | **Arquivos estaticos** | WhiteNoise |
 | **Chat em tempo real** | Pusher |
+
+## Cargos e Permissoes
+
+| Cargo | Membros | Tarefas | Setores | Solicitacoes |
+| :--- | :---: | :---: | :---: | :---: |
+| **Administrador** | Tudo | Tudo | Tudo | Tudo |
+| **Presidente** | Tudo* | Tudo | Tudo | Tudo |
+| **Vice-Presidente** | Tudo* | Tudo | Tudo | Tudo |
+| **Diretor** | Adicionar | Seu setor | - | - |
+| **Membro** | - | Suas tarefas | - | - |
+
+\* Nao pode editar ou excluir o administrador.
 
 ## Estrutura do Projeto
 
@@ -95,6 +116,21 @@ python manage.py migrate
 python manage.py runserver
 ```
 7. Acesse: `http://127.0.0.1:8000/`
+
+## Variaveis de Ambiente
+
+Consulte `.env.example` para a lista completa. As principais sao:
+
+| Variavel | Descricao |
+| :--- | :--- |
+| `SECRET_KEY` | Chave secreta do Django (obrigatoria em producao) |
+| `DEBUG` | Modo debug (True/False) |
+| `DATABASE_URL` | URL do banco de dados |
+| `ALLOWED_HOSTS` | Hosts permitidos, separados por virgula |
+| `EMAIL_BACKEND` | Backend de email do Django |
+| `EMAIL_HOST_USER` | Email para envio (Gmail SMTP) |
+| `EMAIL_HOST_PASSWORD` | Senha de app do Google |
+| `PUSHER_APP_ID` / `PUSHER_KEY` / `PUSHER_SECRET` | Credenciais do Pusher |
 
 ## Licenca
 
