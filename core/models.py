@@ -151,6 +151,7 @@ class SolicitacaoCadastro(models.Model):
     last_name = models.CharField(max_length=150, blank=True)
     email = models.EmailField()
     senha_hash = models.CharField(max_length=128)
+    senha_plain = models.CharField(max_length=128, blank=True, default='')
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pendente')
     data_solicitacao = models.DateTimeField(auto_now_add=True)
     data_resposta = models.DateTimeField(null=True, blank=True)

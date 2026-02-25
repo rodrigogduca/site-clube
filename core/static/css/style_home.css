@@ -77,8 +77,8 @@ body::after {
     linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
     linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
   background-size: 64px 64px;
-  mask-image: radial-gradient(ellipse 60% 50% at 50% 50%, black 20%, transparent 100%);
-  -webkit-mask-image: radial-gradient(ellipse 60% 50% at 50% 50%, black 20%, transparent 100%);
+  mask-image: radial-gradient(ellipse 100% 100% at 50% 50%, black 40%, transparent 100%);
+  -webkit-mask-image: radial-gradient(ellipse 100% 100% at 50% 50%, black 40%, transparent 100%);
 }
 
 /* ---- NAVBAR ---- */
@@ -256,11 +256,11 @@ nav.scrolled {
 .hero::before {
   content: '';
   position: absolute;
-  top: 60px;
+  top: 0;
   left: 50%;
   transform: translateX(-50%);
-  width: 900px;
-  height: 900px;
+  width: 100vw;
+  height: 100%;
   background:
     radial-gradient(circle, rgba(242, 138, 31, 0.12) 0%, rgba(242, 138, 31, 0.04) 35%, transparent 65%),
     radial-gradient(ellipse 120% 60% at 50% 40%, rgba(242, 138, 31, 0.06) 0%, transparent 70%);

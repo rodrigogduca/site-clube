@@ -204,6 +204,9 @@
           <h3>{{ sol.first_name }} {{ sol.last_name }}</h3>
           <p>Usuário: <strong>{{ sol.username }}</strong></p>
           <p>E-mail: {{ sol.email }}</p>
+          {% if filtro_atual == 'pendente' and sol.senha_plain %}
+            <p>Senha: <strong>{{ sol.senha_plain }}</strong></p>
+          {% endif %}
           <span class="sol-date">{{ sol.data_solicitacao|date:"d/m/Y H:i" }}</span>
           {% if filtro_atual == 'aprovada' %}
             <span class="status-badge status-aprovada">Aprovada</span>

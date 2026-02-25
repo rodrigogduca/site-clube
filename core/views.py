@@ -54,9 +54,9 @@ def painel(request):
             setor_ativo = Setor.objects.filter(id=setor_ativo_id).first()
 
         # Permission flags for template
-        can_create_member = membro.is_superadmin() or membro.is_diretor()
-        can_edit_member = membro.is_superadmin()
-        can_delete_member = membro.is_superadmin()
+        can_create_member = membro.is_admin() or membro.is_diretor()
+        can_edit_member = membro.is_admin()
+        can_delete_member = membro.is_admin()
         can_manage_tasks = not membro.is_read_only()
         can_manage_setores = membro.is_admin()
 
@@ -77,9 +77,9 @@ def painel(request):
         tarefas_sem_setor_em_andamento = tarefas_sem_setor.filter(status='em_andamento')
         tarefas_sem_setor_concluida = tarefas_sem_setor.filter(status='concluida')
 
-        # Pending registration requests count (for superadmin badge)
+        # Pending registration requests count (for admin badge)
         solicitacoes_pendentes = 0
-        if membro.is_superadmin():
+        if membro.is_admin():
             solicitacoes_pendentes = SolicitacaoCadastro.objects.filter(status='pendente').count()
 
         return render(request, 'core/painel_admin.html', {
@@ -143,7 +143,7 @@ def adicionar_membro(request):
     except Membro.DoesNotExist:
         return redirect('home')
 
-    if not (membro.is_superadmin() or membro.is_diretor()):
+    if not (membro.is_admin() or membro.is_diretor()):
         messages.error(request, 'Você não tem permissão para adicionar membros.')
         return redirect('painel')
 
@@ -193,11 +193,16 @@ def editar_membro(request, membro_id):
     except Membro.DoesNotExist:
         return redirect('home')
 
-    if not admin.is_superadmin():
-        messages.error(request, 'Apenas o administrador pode editar membros.')
+    if not admin.is_admin():
+        messages.error(request, 'Você não tem permissão para editar membros.')
         return redirect('painel')
 
     membro = get_object_or_404(Membro, id=membro_id)
+
+    # Protect admin members: only superadmin can edit an admin
+    if membro.cargo == 'administrador' and not admin.is_superadmin():
+        messages.error(request, 'Apenas o administrador pode editar outros administradores.')
+        return redirect('painel')
 
     setor_anterior = membro.setor
 
@@ -249,8 +254,8 @@ def excluir_membro(request, membro_id):
     except Membro.DoesNotExist:
         return redirect('home')
 
-    if not admin.is_superadmin():
-        messages.error(request, 'Apenas o administrador pode excluir membros.')
+    if not admin.is_admin():
+        messages.error(request, 'Você não tem permissão para excluir membros.')
         return redirect('painel')
 
     membro = get_object_or_404(Membro, id=membro_id)
@@ -735,6 +740,7 @@ def solicitar_cadastro(request):
                 last_name=form.cleaned_data.get('last_name', ''),
                 email=form.cleaned_data['email'],
                 senha_hash=make_password(form.cleaned_data['senha']),
+                senha_plain=form.cleaned_data['senha'],
             )
             messages.success(
                 request,
@@ -754,8 +760,8 @@ def listar_solicitacoes(request):
     except Membro.DoesNotExist:
         return redirect('home')
 
-    if not membro.is_superadmin():
-        messages.error(request, 'Apenas o administrador pode gerenciar solicitações.')
+    if not membro.is_admin():
+        messages.error(request, 'Você não tem permissão para gerenciar solicitações.')
         return redirect('painel')
 
     filtro = request.GET.get('status', 'pendente')
@@ -779,8 +785,8 @@ def aprovar_solicitacao(request, solicitacao_id):
     except Membro.DoesNotExist:
         return redirect('home')
 
-    if not membro.is_superadmin():
-        messages.error(request, 'Apenas o administrador pode aprovar solicitações.')
+    if not membro.is_admin():
+        messages.error(request, 'Você não tem permissão para aprovar solicitações.')
         return redirect('painel')
 
     from django.utils import timezone
@@ -810,6 +816,7 @@ def aprovar_solicitacao(request, solicitacao_id):
     solicitacao.status = 'aprovada'
     solicitacao.data_resposta = timezone.now()
     solicitacao.respondido_por = request.user
+    solicitacao.senha_plain = ''
     solicitacao.save()
 
     messages.success(
@@ -827,8 +834,8 @@ def rejeitar_solicitacao(request, solicitacao_id):
     except Membro.DoesNotExist:
         return redirect('home')
 
-    if not membro.is_superadmin():
-        messages.error(request, 'Apenas o administrador pode rejeitar solicitações.')
+    if not membro.is_admin():
+        messages.error(request, 'Você não tem permissão para rejeitar solicitações.')
         return redirect('painel')
 
     from django.utils import timezone
@@ -838,6 +845,7 @@ def rejeitar_solicitacao(request, solicitacao_id):
     solicitacao.status = 'rejeitada'
     solicitacao.data_resposta = timezone.now()
     solicitacao.respondido_por = request.user
+    solicitacao.senha_plain = ''
     solicitacao.save()
 
     messages.success(
@@ -855,8 +863,8 @@ def excluir_solicitacao(request, solicitacao_id):
     except Membro.DoesNotExist:
         return redirect('home')
 
-    if not membro.is_superadmin():
-        messages.error(request, 'Apenas o administrador pode excluir solicitações.')
+    if not membro.is_admin():
+        messages.error(request, 'Você não tem permissão para excluir solicitações.')
         return redirect('painel')
 
     solicitacao = get_object_or_404(SolicitacaoCadastro, id=solicitacao_id)
@@ -882,8 +890,8 @@ def editar_solicitacao(request, solicitacao_id):
     except Membro.DoesNotExist:
         return redirect('home')
 
-    if not membro.is_superadmin():
-        messages.error(request, 'Apenas o administrador pode editar solicitações.')
+    if not membro.is_admin():
+        messages.error(request, 'Você não tem permissão para editar solicitações.')
         return redirect('painel')
 
     solicitacao = get_object_or_404(SolicitacaoCadastro, id=solicitacao_id, status='pendente')
