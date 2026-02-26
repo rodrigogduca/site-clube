@@ -10,126 +10,6 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'css/style_painel.css' %}">
-  <style>
-    /* ---- TABS ---- */
-    .tabs-bar {
-      display: flex;
-      gap: 0.25rem;
-      margin-bottom: 2rem;
-      border-bottom: 1px solid var(--border);
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-      scrollbar-width: none;
-    }
-
-    .tabs-bar::-webkit-scrollbar {
-      display: none;
-    }
-
-    .tab-btn {
-      padding: 0.6rem 1.15rem;
-      font-family: 'Inter', sans-serif;
-      font-size: 0.85rem;
-      font-weight: 600;
-      color: var(--text-muted);
-      background: none;
-      border: none;
-      border-bottom: 2px solid transparent;
-      cursor: pointer;
-      white-space: nowrap;
-      transition: color 0.2s, border-color 0.2s;
-    }
-
-    .tab-btn:hover {
-      color: var(--text);
-    }
-
-    .tab-btn.active {
-      color: var(--primary);
-      border-bottom-color: var(--primary);
-    }
-
-    .tab-panel {
-      display: none;
-    }
-
-    .tab-panel.active {
-      display: block;
-    }
-
-    /* ---- SETOR HEADER inside tab ---- */
-    .setor-tab-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 0.75rem;
-      margin-bottom: 1.5rem;
-      padding: 1rem 1.25rem;
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-    }
-
-    .setor-tab-header h2 {
-      font-size: 1.15rem;
-      font-weight: 700;
-    }
-
-    .setor-tab-header p {
-      font-size: 0.85rem;
-      color: var(--text-muted);
-      margin-top: 0.2rem;
-    }
-
-    .setor-tab-actions {
-      display: flex;
-      gap: 0.5rem;
-    }
-
-    /* ---- SETOR LABEL on member cards ---- */
-    .card-setor {
-      font-size: 0.72rem;
-      color: var(--text-muted);
-      margin-top: 0.15rem;
-    }
-
-    .card-setor strong {
-      color: var(--text);
-    }
-
-    /* ---- KANBAN ACTION LINKS ---- */
-    .kanban-card-actions {
-      display: flex;
-      gap: 0.5rem;
-      padding-top: 0.4rem;
-    }
-
-    .kanban-card-actions a {
-      font-size: 0.72rem;
-      font-weight: 600;
-      text-decoration: none;
-      padding: 0.2rem 0.5rem;
-      border-radius: 4px;
-      transition: background 0.2s;
-    }
-
-    .kanban-card-actions .kbn-edit {
-      color: var(--primary);
-    }
-
-    .kanban-card-actions .kbn-edit:hover {
-      background: rgba(242, 138, 31, 0.1);
-    }
-
-    .kanban-card-actions .kbn-delete {
-      color: var(--error);
-    }
-
-    .kanban-card-actions .kbn-delete:hover {
-      background: rgba(239, 68, 68, 0.1);
-    }
-  </style>
 </head>
 <body>
 
@@ -142,12 +22,24 @@
       <span>Clube de Programação</span>
     </a>
     <div class="nav-right">
-      <a href="{% url 'chat_lista' %}" class="nav-link">Chat</a>
-      <span class="nav-user">Olá, {{ membro.usuario.first_name|default:membro.usuario.username }}</span>
-      <form method="POST" action="{% url 'logout' %}" class="logout-form">
-        {% csrf_token %}
-        <button type="submit" class="nav-link nav-logout">Sair</button>
-      </form>
+      <div class="user-menu">
+        <button class="user-avatar" type="button">{{ membro.usuario.first_name|make_list|first|default:"?" }}{{ membro.usuario.last_name|make_list|first|default:"" }}</button>
+        <div class="user-dropdown">
+          <div class="user-dropdown-header">
+            <strong>{{ membro.usuario.get_full_name|default:membro.usuario.username }}</strong>
+            <span>{{ membro.get_cargo_display }}</span>
+          </div>
+          <div class="user-dropdown-divider"></div>
+          <a href="{% url 'menu' %}" class="user-dropdown-item">Menu</a>
+          <a href="{% url 'chat_lista' %}" class="user-dropdown-item">Chat</a>
+          <a href="{% url 'home' %}" class="user-dropdown-item">Página Inicial</a>
+          <div class="user-dropdown-divider"></div>
+          <form method="POST" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button type="submit" class="user-dropdown-item user-dropdown-logout">Sair</button>
+          </form>
+        </div>
+      </div>
     </div>
   </nav>
 
@@ -188,12 +80,12 @@
     {% endif %}
 
     <!-- TABS BAR -->
-    <div class="tabs-bar" role="tablist">
-      <button class="tab-btn active" role="tab" aria-selected="true" data-tab="tab-todos">Todos</button>
+    <div class="tabs-bar" role="tablist" {% if setor_ativo %}data-active-setor="{{ setor_ativo.id }}"{% endif %}>
+      <button type="button" class="tab-btn active" role="tab" aria-selected="true" data-tab="tab-todos">Todos</button>
       {% for setor in setores %}
-        <button class="tab-btn{% if setor_ativo and setor_ativo.id == setor.id %} active{% endif %}" role="tab" aria-selected="false" data-tab="tab-setor-{{ setor.id }}">{{ setor.nome }}</button>
+        <button type="button" class="tab-btn{% if setor_ativo and setor_ativo.id == setor.id %} active{% endif %}" role="tab" aria-selected="false" data-tab="tab-setor-{{ setor.id }}">{{ setor.nome }}</button>
       {% endfor %}
-      <button class="tab-btn" role="tab" aria-selected="false" data-tab="tab-sem-setor">Sem Setor</button>
+      <button type="button" class="tab-btn" role="tab" aria-selected="false" data-tab="tab-sem-setor">Sem Setor</button>
     </div>
 
     <!-- ==================== TAB: TODOS ==================== -->
@@ -202,36 +94,51 @@
       <!-- Membros -->
       <section class="painel-section">
         <h2 class="section-title">Todos os Membros</h2>
-        {% if todos_membros %}
-          <div class="cards-grid">
-            {% for m in todos_membros %}
-              <div class="card card-membro">
-                <div class="card-avatar">{{ m.usuario.first_name|make_list|first|default:"?" }}{{ m.usuario.last_name|make_list|first|default:"" }}</div>
-                <div class="card-info">
-                  <h3>{{ m.usuario.get_full_name|default:m.usuario.username }}</h3>
-                  <span class="badge badge-{{ m.cargo }}">{{ m.get_cargo_display }}</span>
-                  <p class="card-date">Desde {{ m.data_entrada|date:"d/m/Y" }}</p>
-                  {% if m.setor %}
-                    <p class="card-setor">Setor: <strong>{{ m.setor.nome }}</strong></p>
-                  {% elif m.cargo != 'presidente' and m.cargo != 'vice_presidente' %}
-                    <p class="card-setor">Sem setor</p>
-                  {% endif %}
+        {% if membros_por_cargo %}
+          {% for cargo_label, membros_cargo in membros_por_cargo %}
+            <div class="cargo-group">
+              <button class="cargo-toggle" type="button" data-target="cargo-{{ forloop.counter }}">
+                <span class="cargo-toggle-left">
+                  {{ cargo_label }}
+                  <span class="cargo-count">{{ membros_cargo|length }}</span>
+                </span>
+                <svg class="cargo-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+              <div class="cargo-members" id="cargo-{{ forloop.counter }}">
+                <div class="cards-grid">
+                  {% for m in membros_cargo %}
+                    <div class="card card-membro">
+                      <div class="card-avatar">{{ m.usuario.first_name|make_list|first|default:"?" }}{{ m.usuario.last_name|make_list|first|default:"" }}</div>
+                      <div class="card-info">
+                        <h3>{{ m.usuario.get_full_name|default:m.usuario.username }}</h3>
+                        <span class="badge badge-{{ m.cargo }}">{{ m.get_cargo_display }}</span>
+                        {% if membro.cargo == 'presidente' or membro.cargo == 'administrador' %}
+                        <p class="card-date">Desde {{ m.data_entrada|date:"d/m/Y" }}</p>
+                        {% endif %}
+                        {% if m.setor %}
+                          <p class="card-setor">Setor: <strong>{{ m.setor.nome }}</strong></p>
+                        {% elif m.cargo != 'presidente' and m.cargo != 'vice_presidente' %}
+                          <p class="card-setor">Sem setor</p>
+                        {% endif %}
+                      </div>
+                      {% if can_edit_member %}
+                        <div class="card-actions">
+                          <a href="{% url 'editar_membro' m.id %}" class="btn-action btn-edit" title="Editar">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
+                          </a>
+                          {% if can_delete_member %}
+                            <a href="{% url 'excluir_membro' m.id %}" class="btn-action btn-delete" title="Excluir">
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                            </a>
+                          {% endif %}
+                        </div>
+                      {% endif %}
+                    </div>
+                  {% endfor %}
                 </div>
-                {% if can_edit_member %}
-                  <div class="card-actions">
-                    <a href="{% url 'editar_membro' m.id %}" class="btn-action btn-edit" title="Editar">
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
-                    </a>
-                    {% if can_delete_member %}
-                      <a href="{% url 'excluir_membro' m.id %}" class="btn-action btn-delete" title="Excluir">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
-                      </a>
-                    {% endif %}
-                  </div>
-                {% endif %}
               </div>
-            {% endfor %}
-          </div>
+            </div>
+          {% endfor %}
         {% else %}
           <p class="empty-state">Nenhum membro cadastrado ainda.</p>
         {% endif %}
@@ -239,7 +146,18 @@
 
       <!-- Tarefas - Kanban -->
       <section class="painel-section">
-        <h2 class="section-title">Todas as Tarefas</h2>
+        <div class="section-header-row">
+          <h2 class="section-title">Todas as Tarefas</h2>
+          <div class="kanban-filter">
+            <label for="filtro-setor" class="filter-label">Filtrar por setor:</label>
+            <select id="filtro-setor" class="filter-select">
+              <option value="todos">Todos</option>
+              {% for setor in setores %}
+                <option value="{{ setor.id }}">{{ setor.nome }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
         <div class="kanban-board">
           <!-- Pendente -->
           <div class="kanban-column">
@@ -250,13 +168,14 @@
             </div>
             <div class="kanban-cards">
               {% for tarefa in todas_tarefas_pendente %}
-                <div class="kanban-card">
+                <div class="kanban-card" data-setor-id="{{ tarefa.setor.id|default:'0' }}">
                   <h4>{{ tarefa.titulo }}</h4>
                   {% if tarefa.descricao %}<p class="kanban-card-desc">{{ tarefa.descricao|truncatewords:15 }}</p>{% endif %}
                   <div class="kanban-card-meta">
                     <span>{{ tarefa.responsavel.usuario.get_full_name|default:tarefa.responsavel.usuario.username }}</span>
                     {% if tarefa.prazo %}<span class="kanban-prazo">{{ tarefa.prazo|date:"d/m/Y" }}</span>{% endif %}
                   </div>
+                  <div class="kanban-card-setor">{{ tarefa.setor.nome|default:"Sem Setor" }}</div>
                   {% if can_manage_tasks %}
                     <form method="POST" action="{% url 'atualizar_tarefa' tarefa.id %}" class="kanban-status-form">
                       {% csrf_token %}
@@ -288,13 +207,14 @@
             </div>
             <div class="kanban-cards">
               {% for tarefa in todas_tarefas_em_andamento %}
-                <div class="kanban-card">
+                <div class="kanban-card" data-setor-id="{{ tarefa.setor.id|default:'0' }}">
                   <h4>{{ tarefa.titulo }}</h4>
                   {% if tarefa.descricao %}<p class="kanban-card-desc">{{ tarefa.descricao|truncatewords:15 }}</p>{% endif %}
                   <div class="kanban-card-meta">
                     <span>{{ tarefa.responsavel.usuario.get_full_name|default:tarefa.responsavel.usuario.username }}</span>
                     {% if tarefa.prazo %}<span class="kanban-prazo">{{ tarefa.prazo|date:"d/m/Y" }}</span>{% endif %}
                   </div>
+                  <div class="kanban-card-setor">{{ tarefa.setor.nome|default:"Sem Setor" }}</div>
                   {% if can_manage_tasks %}
                     <form method="POST" action="{% url 'atualizar_tarefa' tarefa.id %}" class="kanban-status-form">
                       {% csrf_token %}
@@ -326,13 +246,14 @@
             </div>
             <div class="kanban-cards">
               {% for tarefa in todas_tarefas_concluida %}
-                <div class="kanban-card">
+                <div class="kanban-card" data-setor-id="{{ tarefa.setor.id|default:'0' }}">
                   <h4>{{ tarefa.titulo }}</h4>
                   {% if tarefa.descricao %}<p class="kanban-card-desc">{{ tarefa.descricao|truncatewords:15 }}</p>{% endif %}
                   <div class="kanban-card-meta">
                     <span>{{ tarefa.responsavel.usuario.get_full_name|default:tarefa.responsavel.usuario.username }}</span>
                     {% if tarefa.prazo %}<span class="kanban-prazo">{{ tarefa.prazo|date:"d/m/Y" }}</span>{% endif %}
                   </div>
+                  <div class="kanban-card-setor">{{ tarefa.setor.nome|default:"Sem Setor" }}</div>
                   {% if can_manage_tasks %}
                     <form method="POST" action="{% url 'atualizar_tarefa' tarefa.id %}" class="kanban-status-form">
                       {% csrf_token %}
@@ -704,34 +625,7 @@
 
   </main>
 
-  <script>
-    (function () {
-      var buttons = document.querySelectorAll('.tab-btn');
-      var panels = document.querySelectorAll('.tab-panel');
-
-      function activateTab(targetId) {
-        buttons.forEach(function (btn) {
-          var isActive = btn.getAttribute('data-tab') === targetId;
-          btn.classList.toggle('active', isActive);
-          btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
-        });
-        panels.forEach(function (panel) {
-          panel.classList.toggle('active', panel.id === targetId);
-        });
-      }
-
-      buttons.forEach(function (btn) {
-        btn.addEventListener('click', function () {
-          activateTab(this.getAttribute('data-tab'));
-        });
-      });
-
-      // If setor_ativo is set from the server, activate that tab on load
-      {% if setor_ativo %}
-        activateTab('tab-setor-{{ setor_ativo.id }}');
-      {% endif %}
-    })();
-  </script>
+  <script src="{% static 'js/painel.js' %}"></script>
 
 </body>
 </html>

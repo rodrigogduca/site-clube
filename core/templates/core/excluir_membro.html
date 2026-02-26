@@ -21,11 +21,24 @@
       <span>Clube de Programação</span>
     </a>
     <div class="nav-right">
-      <a href="{% url 'painel' %}" class="nav-link">Voltar ao Painel</a>
-      <form method="POST" action="{% url 'logout' %}" class="logout-form">
-        {% csrf_token %}
-        <button type="submit" class="nav-link nav-logout">Sair</button>
-      </form>
+      <div class="user-menu">
+        <button class="user-avatar" type="button">{{ membro.usuario.first_name|make_list|first|default:"?" }}{{ membro.usuario.last_name|make_list|first|default:"" }}</button>
+        <div class="user-dropdown">
+          <div class="user-dropdown-header">
+            <strong>{{ membro.usuario.get_full_name|default:membro.usuario.username }}</strong>
+            <span>{{ membro.get_cargo_display }}</span>
+          </div>
+          <div class="user-dropdown-divider"></div>
+          <a href="{% url 'menu' %}" class="user-dropdown-item">Menu</a>
+          <a href="{% url 'painel' %}" class="user-dropdown-item">Painel</a>
+          <a href="{% url 'home' %}" class="user-dropdown-item">Página Inicial</a>
+          <div class="user-dropdown-divider"></div>
+          <form method="POST" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button type="submit" class="user-dropdown-item user-dropdown-logout">Sair</button>
+          </form>
+        </div>
+      </div>
     </div>
   </nav>
 
@@ -36,10 +49,10 @@
 
       <div class="form-card">
         <div class="confirm-info">
-          <div class="card-avatar">{{ membro.usuario.first_name|make_list|first|default:"?" }}{{ membro.usuario.last_name|make_list|first|default:"" }}</div>
-          <h3>{{ membro.usuario.get_full_name|default:membro.usuario.username }}</h3>
-          <span class="badge badge-{{ membro.cargo }}">{{ membro.get_cargo_display }}</span>
-          <p class="card-date">Membro desde {{ membro.data_entrada|date:"d/m/Y" }}</p>
+          <div class="card-avatar">{{ membro_alvo.usuario.first_name|make_list|first|default:"?" }}{{ membro_alvo.usuario.last_name|make_list|first|default:"" }}</div>
+          <h3>{{ membro_alvo.usuario.get_full_name|default:membro_alvo.usuario.username }}</h3>
+          <span class="badge badge-{{ membro_alvo.cargo }}">{{ membro_alvo.get_cargo_display }}</span>
+          <p class="card-date">Membro desde {{ membro_alvo.data_entrada|date:"d/m/Y" }}</p>
         </div>
 
         <p class="confirm-warning">Tem certeza que deseja excluir este membro? Todas as tarefas atribuídas a ele também serão removidas.</p>
@@ -54,6 +67,8 @@
       </div>
     </div>
   </main>
+
+  <script src="{% static 'js/painel.js' %}"></script>
 
 </body>
 </html>

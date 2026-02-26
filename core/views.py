@@ -19,7 +19,29 @@ logger = logging.getLogger(__name__)
 
 
 def home(request):
-    return render(request, 'core/home.html')
+    context = {}
+    if request.user.is_authenticated:
+        membro, _ = Membro.objects.get_or_create(
+            usuario=request.user,
+            defaults={'cargo': 'presidente' if request.user.is_superuser else 'membro'},
+        )
+        context['membro'] = membro
+    return render(request, 'core/home.html', context)
+
+
+@login_required
+def menu(request):
+    membro, _ = Membro.objects.get_or_create(
+        usuario=request.user,
+        defaults={'cargo': 'presidente' if request.user.is_superuser else 'membro'},
+    )
+    solicitacoes_pendentes = 0
+    if membro.is_admin():
+        solicitacoes_pendentes = SolicitacaoCadastro.objects.filter(status='pendente').count()
+    return render(request, 'core/menu.html', {
+        'membro': membro,
+        'solicitacoes_pendentes': solicitacoes_pendentes,
+    })
 
 
 # ---------------------------------------------------------------------------
@@ -40,7 +62,7 @@ def painel(request):
         tarefas_sem_setor = Tarefa.objects.filter(setor__isnull=True).select_related(
             'responsavel__usuario', 'criado_por'
         )
-        todos_membros = Membro.objects.select_related('usuario').all()
+        todos_membros = Membro.objects.select_related('usuario', 'setor').all()
         todas_tarefas = Tarefa.objects.select_related('responsavel__usuario', 'criado_por').all()
 
         # Hide admin members from non-admin users
@@ -82,6 +104,13 @@ def painel(request):
         if membro.is_admin():
             solicitacoes_pendentes = SolicitacaoCadastro.objects.filter(status='pendente').count()
 
+        # Group members by cargo for accordion display
+        membros_por_cargo = []
+        for cargo_key, cargo_label in Membro.CARGO_CHOICES:
+            membros_cargo = todos_membros.filter(cargo=cargo_key)
+            if membros_cargo.exists():
+                membros_por_cargo.append((cargo_label, list(membros_cargo)))
+
         return render(request, 'core/painel_admin.html', {
             'membro': membro,
             'setores': setores,
@@ -89,6 +118,7 @@ def painel(request):
             'membros_sem_setor': membros_sem_setor,
             'tarefas_sem_setor': tarefas_sem_setor,
             'todos_membros': todos_membros,
+            'membros_por_cargo': membros_por_cargo,
             'todas_tarefas': todas_tarefas,
             'can_create_member': can_create_member,
             'can_edit_member': can_edit_member,
@@ -183,7 +213,7 @@ def adicionar_membro(request):
             form.fields['setor'].initial = membro.setor
             form.fields['setor'].widget = form.fields['setor'].hidden_widget()
 
-    return render(request, 'core/adicionar_membro.html', {'form': form})
+    return render(request, 'core/adicionar_membro.html', {'form': form, 'membro': membro})
 
 
 @login_required
@@ -244,7 +274,7 @@ def editar_membro(request, membro_id):
             'setor': membro.setor,
         })
 
-    return render(request, 'core/editar_membro.html', {'form': form, 'membro': membro})
+    return render(request, 'core/editar_membro.html', {'form': form, 'membro_alvo': membro, 'membro': admin})
 
 
 @login_required
@@ -275,7 +305,7 @@ def excluir_membro(request, membro_id):
         messages.success(request, f'Membro {nome} excluído com sucesso!')
         return redirect('painel')
 
-    return render(request, 'core/excluir_membro.html', {'membro': membro})
+    return render(request, 'core/excluir_membro.html', {'membro_alvo': membro, 'membro': admin})
 
 
 # ---------------------------------------------------------------------------
@@ -348,7 +378,7 @@ def criar_tarefa(request):
             form.fields['setor'].initial = membro.setor
             form.fields['setor'].widget = form.fields['setor'].hidden_widget()
 
-    return render(request, 'core/criar_tarefa.html', {'form': form})
+    return render(request, 'core/criar_tarefa.html', {'form': form, 'membro': membro})
 
 
 @login_required
@@ -392,7 +422,7 @@ def editar_tarefa(request, tarefa_id):
     else:
         form = FormTarefa(instance=tarefa)
 
-    return render(request, 'core/editar_tarefa.html', {'form': form, 'tarefa': tarefa})
+    return render(request, 'core/editar_tarefa.html', {'form': form, 'tarefa': tarefa, 'membro': membro})
 
 
 @login_required
@@ -414,7 +444,7 @@ def excluir_tarefa(request, tarefa_id):
         messages.success(request, f'Tarefa "{titulo}" excluída com sucesso!')
         return redirect('painel')
 
-    return render(request, 'core/excluir_tarefa.html', {'tarefa': tarefa})
+    return render(request, 'core/excluir_tarefa.html', {'tarefa': tarefa, 'membro': membro})
 
 
 # ---------------------------------------------------------------------------
@@ -447,7 +477,7 @@ def criar_setor(request):
     else:
         form = FormSetor()
 
-    return render(request, 'core/criar_setor.html', {'form': form})
+    return render(request, 'core/criar_setor.html', {'form': form, 'membro': membro})
 
 
 @login_required
@@ -475,7 +505,7 @@ def editar_setor(request, setor_id):
     else:
         form = FormSetor(instance=setor)
 
-    return render(request, 'core/editar_setor.html', {'form': form, 'setor': setor})
+    return render(request, 'core/editar_setor.html', {'form': form, 'setor': setor, 'membro': membro})
 
 
 @login_required
@@ -497,7 +527,7 @@ def excluir_setor(request, setor_id):
         messages.success(request, f'Setor "{nome}" excluído com sucesso!')
         return redirect('painel')
 
-    return render(request, 'core/excluir_setor.html', {'setor': setor})
+    return render(request, 'core/excluir_setor.html', {'setor': setor, 'membro': membro})
 
 
 # ---------------------------------------------------------------------------

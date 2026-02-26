@@ -10,148 +10,6 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'css/style_painel.css' %}">
-  <style>
-    .filter-bar {
-      display: flex;
-      gap: 0.5rem;
-      margin-bottom: 2rem;
-    }
-
-    .filter-btn {
-      padding: 0.5rem 1rem;
-      font-family: 'Inter', sans-serif;
-      font-size: 0.8rem;
-      font-weight: 600;
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      background: transparent;
-      color: var(--text-muted);
-      cursor: pointer;
-      text-decoration: none;
-      transition: all 0.2s;
-    }
-
-    .filter-btn:hover {
-      border-color: var(--border-hover);
-      color: var(--text);
-    }
-
-    .filter-btn.active {
-      background: var(--primary);
-      color: var(--bg);
-      border-color: var(--primary);
-    }
-
-    .solicitacao-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 1.25rem;
-      margin-bottom: 0.75rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 1rem;
-      flex-wrap: wrap;
-      transition: border-color 0.2s;
-    }
-
-    .solicitacao-card:hover {
-      border-color: var(--border-hover);
-    }
-
-    .solicitacao-info h3 {
-      font-size: 1rem;
-      font-weight: 700;
-      margin-bottom: 0.25rem;
-    }
-
-    .solicitacao-info p {
-      font-size: 0.82rem;
-      color: var(--text-muted);
-      margin-bottom: 0.15rem;
-    }
-
-    .solicitacao-info .sol-date {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.72rem;
-      color: var(--text-muted);
-      opacity: 0.7;
-    }
-
-    .solicitacao-actions {
-      display: flex;
-      gap: 0.5rem;
-      flex-shrink: 0;
-    }
-
-    .btn-aprovar, .btn-rejeitar {
-      padding: 0.5rem 1rem;
-      font-family: 'Inter', sans-serif;
-      font-size: 0.8rem;
-      font-weight: 600;
-      border: none;
-      border-radius: var(--radius-sm);
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .btn-aprovar {
-      background: rgba(34, 197, 94, 0.15);
-      color: var(--success);
-      border: 1px solid rgba(34, 197, 94, 0.2);
-    }
-
-    .btn-aprovar:hover {
-      background: rgba(34, 197, 94, 0.25);
-    }
-
-    .btn-rejeitar {
-      background: rgba(239, 68, 68, 0.15);
-      color: var(--error);
-      border: 1px solid rgba(239, 68, 68, 0.2);
-    }
-
-    .btn-rejeitar:hover {
-      background: rgba(239, 68, 68, 0.25);
-    }
-
-    .btn-editar {
-      padding: 0.5rem 1rem;
-      font-family: 'Inter', sans-serif;
-      font-size: 0.8rem;
-      font-weight: 600;
-      border: 1px solid rgba(242, 138, 31, 0.25);
-      border-radius: var(--radius-sm);
-      background: rgba(242, 138, 31, 0.15);
-      color: var(--primary);
-      cursor: pointer;
-      text-decoration: none;
-      transition: all 0.2s;
-    }
-
-    .btn-editar:hover {
-      background: rgba(242, 138, 31, 0.25);
-    }
-
-    .status-badge {
-      display: inline-block;
-      padding: 0.2rem 0.6rem;
-      border-radius: 4px;
-      font-size: 0.72rem;
-      font-weight: 600;
-    }
-
-    .status-aprovada {
-      background: rgba(34, 197, 94, 0.12);
-      color: var(--success);
-    }
-
-    .status-rejeitada {
-      background: rgba(239, 68, 68, 0.12);
-      color: var(--error);
-    }
-  </style>
 </head>
 <body>
 
@@ -164,11 +22,24 @@
       <span>Clube de Programação</span>
     </a>
     <div class="nav-right">
-      <a href="{% url 'painel' %}" class="nav-link">Voltar ao Painel</a>
-      <form method="POST" action="{% url 'logout' %}" class="logout-form">
-        {% csrf_token %}
-        <button type="submit" class="nav-link nav-logout">Sair</button>
-      </form>
+      <div class="user-menu">
+        <button class="user-avatar" type="button">{{ membro.usuario.first_name|make_list|first|default:"?" }}{{ membro.usuario.last_name|make_list|first|default:"" }}</button>
+        <div class="user-dropdown">
+          <div class="user-dropdown-header">
+            <strong>{{ membro.usuario.get_full_name|default:membro.usuario.username }}</strong>
+            <span>{{ membro.get_cargo_display }}</span>
+          </div>
+          <div class="user-dropdown-divider"></div>
+          <a href="{% url 'menu' %}" class="user-dropdown-item">Menu</a>
+          <a href="{% url 'painel' %}" class="user-dropdown-item">Painel</a>
+          <a href="{% url 'home' %}" class="user-dropdown-item">Página Inicial</a>
+          <div class="user-dropdown-divider"></div>
+          <form method="POST" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button type="submit" class="user-dropdown-item user-dropdown-logout">Sair</button>
+          </form>
+        </div>
+      </div>
     </div>
   </nav>
 
@@ -248,6 +119,8 @@
     {% endfor %}
 
   </main>
+
+  <script src="{% static 'js/painel.js' %}"></script>
 
 </body>
 </html>

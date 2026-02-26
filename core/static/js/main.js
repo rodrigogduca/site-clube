@@ -75,19 +75,27 @@ if (window.matchMedia('(pointer: fine)').matches) {
   const glow = document.getElementById('cursorGlow');
   let mouseX = 0, mouseY = 0;
   let glowX = 0, glowY = 0;
+  let animating = false;
 
   document.addEventListener('mousemove', (e) => {
     mouseX = e.clientX;
     mouseY = e.clientY;
+    if (!animating) {
+      animating = true;
+      animateGlow();
+    }
   }, { passive: true });
 
   function animateGlow() {
     glowX += (mouseX - glowX) * 0.08;
     glowY += (mouseY - glowY) * 0.08;
     glow.style.transform = `translate(${glowX - 200}px, ${glowY - 200}px)`;
-    requestAnimationFrame(animateGlow);
+    if (Math.abs(mouseX - glowX) > 0.5 || Math.abs(mouseY - glowY) > 0.5) {
+      requestAnimationFrame(animateGlow);
+    } else {
+      animating = false;
+    }
   }
-  animateGlow();
 } else {
   const glowEl = document.getElementById('cursorGlow');
   if (glowEl) glowEl.style.display = 'none';
@@ -196,6 +204,31 @@ document.addEventListener('keydown', (e) => {
     document.body.style.overflow = '';
   }
 });
+
+/* ---- USER AVATAR DROPDOWN ---- */
+(function() {
+  const avatar = document.querySelector('.user-avatar');
+  if (!avatar) return;
+  const dropdown = avatar.nextElementSibling;
+  if (!dropdown) return;
+
+  avatar.addEventListener('click', function(e) {
+    e.stopPropagation();
+    dropdown.classList.toggle('open');
+  });
+
+  document.addEventListener('click', function(e) {
+    if (!dropdown.contains(e.target) && e.target !== avatar) {
+      dropdown.classList.remove('open');
+    }
+  });
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      dropdown.classList.remove('open');
+    }
+  });
+})();
 
 /* ---- MODAL PROSEL ---- */
 const btnProsel = document.getElementById('btnProsel');

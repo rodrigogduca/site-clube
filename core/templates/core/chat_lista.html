@@ -11,34 +11,6 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'css/style_painel.css' %}">
-  <style>
-    .chat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
-    .chat-list-section { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 1.25rem; }
-    .chat-list-section h2 { font-size: 1rem; font-weight: 700; margin-bottom: 1rem; color: #fff; }
-    .chat-item { display: flex; align-items: center; gap: 0.5rem; padding: 0.75rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.06); margin-bottom: 0.5rem; transition: background 0.2s; }
-    .chat-item:hover { background: rgba(255,255,255,0.04); }
-    .chat-item-link { flex: 1; text-decoration: none; color: inherit; }
-    .chat-item-info { flex: 1; }
-    .chat-item-name { font-weight: 600; color: #fff; font-size: 0.9rem; }
-    .chat-item-meta { font-size: 0.75rem; color: rgba(255,255,255,0.4); margin-top: 0.15rem; }
-    .chat-item-tag { display: inline-block; font-size: 0.65rem; padding: 0.1rem 0.4rem; border-radius: 4px; background: rgba(59,130,246,0.15); color: #3b82f6; margin-left: 0.4rem; font-weight: 600; }
-    .chat-item-actions { display: flex; gap: 0.3rem; flex-shrink: 0; }
-    .btn-chat-action { padding: 0.3rem 0.6rem; font-size: 0.7rem; font-weight: 600; border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; background: none; color: var(--text-muted); cursor: pointer; transition: all 0.2s; font-family: 'Inter', sans-serif; }
-    .btn-chat-action:hover { border-color: var(--primary); color: var(--primary); background: rgba(242,138,31,0.08); }
-    .btn-chat-delete { color: var(--error); }
-    .btn-chat-delete:hover { border-color: var(--error); color: var(--error); background: rgba(239,68,68,0.08); }
-    .member-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.6rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.06); margin-bottom: 0.5rem; }
-    .member-item-avatar { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #F28A1F, #f59e0b); display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 700; color: #060608; flex-shrink: 0; }
-    .member-item-info { flex: 1; }
-    .member-item-name { font-weight: 600; color: #fff; font-size: 0.85rem; }
-    .rename-modal { display: none; position: fixed; inset: 0; z-index: 200; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); align-items: center; justify-content: center; padding: 24px; }
-    .rename-modal.open { display: flex; }
-    .rename-modal-card { background: rgba(12,12,16,0.95); border: 1px solid rgba(242,138,31,0.15); border-radius: 16px; padding: 2rem; max-width: 400px; width: 100%; }
-    .rename-modal-card h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 1rem; }
-    .rename-modal-card .form-input { margin-bottom: 1rem; }
-    .rename-modal-card .form-buttons { display: flex; gap: 0.75rem; }
-    @media (max-width: 768px) { .chat-grid { grid-template-columns: 1fr; } }
-  </style>
 </head>
 <body>
 
@@ -50,12 +22,24 @@
       <span>Clube de Programação</span>
     </a>
     <div class="nav-right">
-      <a href="{% url 'painel' %}" class="nav-link">Voltar ao Painel</a>
-      <span class="nav-user">Olá, {{ user.first_name|default:user.username }}</span>
-      <form method="POST" action="{% url 'logout' %}" class="logout-form">
-        {% csrf_token %}
-        <button type="submit" class="nav-link nav-logout">Sair</button>
-      </form>
+      <div class="user-menu">
+        <button class="user-avatar" type="button">{{ membro.usuario.first_name|make_list|first|default:"?" }}{{ membro.usuario.last_name|make_list|first|default:"" }}</button>
+        <div class="user-dropdown">
+          <div class="user-dropdown-header">
+            <strong>{{ membro.usuario.get_full_name|default:membro.usuario.username }}</strong>
+            <span>{{ membro.get_cargo_display }}</span>
+          </div>
+          <div class="user-dropdown-divider"></div>
+          <a href="{% url 'menu' %}" class="user-dropdown-item">Menu</a>
+          <a href="{% url 'painel' %}" class="user-dropdown-item">Painel</a>
+          <a href="{% url 'home' %}" class="user-dropdown-item">Página Inicial</a>
+          <div class="user-dropdown-divider"></div>
+          <form method="POST" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button type="submit" class="user-dropdown-item user-dropdown-logout">Sair</button>
+          </form>
+        </div>
+      </div>
     </div>
   </nav>
 
@@ -143,22 +127,7 @@
     </div>
   </div>
 
-  <script>
-    function openRenameModal(conversaId, currentName) {
-      document.getElementById('renameForm').action = '/painel/chat/' + conversaId + '/renomear/';
-      document.getElementById('renameInput').value = currentName;
-      document.getElementById('renameModal').classList.add('open');
-    }
-    function closeRenameModal() {
-      document.getElementById('renameModal').classList.remove('open');
-    }
-    document.getElementById('renameModal').addEventListener('click', function(e) {
-      if (e.target === this) closeRenameModal();
-    });
-    document.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape') closeRenameModal();
-    });
-  </script>
+  <script src="{% static 'js/painel.js' %}"></script>
 
 </body>
 </html>
