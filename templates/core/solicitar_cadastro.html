@@ -76,11 +76,7 @@
 
         <div class="form-group">
           <label for="id_setor" class="form-label">Setor</label>
-            <select name="setor" id="id_setor" class="form-input">
-              {% for setor in setores %}
-                <option value="{{ setor.id }}">{{ setor.nome }}</option>
-              {% endfor %}
-            </select>
+          {{ form.setor }}
         </div>
 
         <div class="form-group">
