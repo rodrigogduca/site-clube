@@ -75,7 +75,10 @@
           <h3>{{ sol.first_name }} {{ sol.last_name }}</h3>
           <p>Usuário: <strong>{{ sol.username }}</strong></p>
           <p>E-mail: {{ sol.email }}</p>
-          {% if filtro_atual == 'pendente' and sol.senha_plain %}
+          {% if sol.setor %}
+            <p>Setor: <strong>{{ sol.setor.nome }}</strong></p>
+          {% endif %}
+          {% if filtro_atual == 'pendente' and sol.senha_plain and membro.is_superadmin %}
             <p>Senha: <strong>{{ sol.senha_plain }}</strong></p>
           {% endif %}
           <span class="sol-date">{{ sol.data_solicitacao|date:"d/m/Y H:i" }}</span>

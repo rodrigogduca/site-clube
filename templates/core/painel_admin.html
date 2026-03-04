@@ -175,7 +175,16 @@
                     <span>{{ tarefa.responsavel.usuario.get_full_name|default:tarefa.responsavel.usuario.username }}</span>
                     {% if tarefa.prazo %}<span class="kanban-prazo">{{ tarefa.prazo|date:"d/m/Y" }}</span>{% endif %}
                   </div>
-                  <div class="kanban-card-setor">{{ tarefa.setor.nome|default:"Sem Setor" }}</div>
+                  <div class="kanban-card-tags">
+                    {% if tarefa.prioridade %}<span class="kanban-card-prioridade prioridade-{{ tarefa.prioridade }}">{{ tarefa.get_prioridade_display }}</span>{% endif %}
+                    {% if tarefa.funcao %}<span class="kanban-card-funcao">{{ tarefa.get_funcao_display }}</span>{% endif %}
+                    {% if tarefa.projeto %}<span class="kanban-card-projeto">{{ tarefa.projeto }}</span>{% endif %}
+                  </div>
+
+                  <a href="{% url 'gerenciar_anexos' tarefa.id %}" class="kanban-card-anexos">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+                    {% if tarefa.anexos_count %}{{ tarefa.anexos_count }} anexo{{ tarefa.anexos_count|pluralize }}{% else %}Anexos{% endif %}
+                  </a>
                   {% if can_manage_tasks %}
                     <form method="POST" action="{% url 'atualizar_tarefa' tarefa.id %}" class="kanban-status-form">
                       {% csrf_token %}
@@ -187,6 +196,7 @@
                       <button type="submit" class="btn-small">Mover</button>
                     </form>
                     <div class="kanban-card-actions">
+                      <a href="{% url 'gerenciar_anexos' tarefa.id %}" class="kbn-anexos">Anexos</a>
                       <a href="{% url 'editar_tarefa' tarefa.id %}" class="kbn-edit">Editar</a>
                       {% if can_manage_tasks %}<a href="{% url 'excluir_tarefa' tarefa.id %}" class="kbn-delete">Excluir</a>{% endif %}
                     </div>
@@ -214,7 +224,16 @@
                     <span>{{ tarefa.responsavel.usuario.get_full_name|default:tarefa.responsavel.usuario.username }}</span>
                     {% if tarefa.prazo %}<span class="kanban-prazo">{{ tarefa.prazo|date:"d/m/Y" }}</span>{% endif %}
                   </div>
-                  <div class="kanban-card-setor">{{ tarefa.setor.nome|default:"Sem Setor" }}</div>
+                  <div class="kanban-card-tags">
+                    {% if tarefa.prioridade %}<span class="kanban-card-prioridade prioridade-{{ tarefa.prioridade }}">{{ tarefa.get_prioridade_display }}</span>{% endif %}
+                    {% if tarefa.funcao %}<span class="kanban-card-funcao">{{ tarefa.get_funcao_display }}</span>{% endif %}
+                    {% if tarefa.projeto %}<span class="kanban-card-projeto">{{ tarefa.projeto }}</span>{% endif %}
+                  </div>
+
+                  <a href="{% url 'gerenciar_anexos' tarefa.id %}" class="kanban-card-anexos">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+                    {% if tarefa.anexos_count %}{{ tarefa.anexos_count }} anexo{{ tarefa.anexos_count|pluralize }}{% else %}Anexos{% endif %}
+                  </a>
                   {% if can_manage_tasks %}
                     <form method="POST" action="{% url 'atualizar_tarefa' tarefa.id %}" class="kanban-status-form">
                       {% csrf_token %}
@@ -226,6 +245,7 @@
                       <button type="submit" class="btn-small">Mover</button>
                     </form>
                     <div class="kanban-card-actions">
+                      <a href="{% url 'gerenciar_anexos' tarefa.id %}" class="kbn-anexos">Anexos</a>
                       <a href="{% url 'editar_tarefa' tarefa.id %}" class="kbn-edit">Editar</a>
                       {% if can_manage_tasks %}<a href="{% url 'excluir_tarefa' tarefa.id %}" class="kbn-delete">Excluir</a>{% endif %}
                     </div>
@@ -253,7 +273,16 @@
                     <span>{{ tarefa.responsavel.usuario.get_full_name|default:tarefa.responsavel.usuario.username }}</span>
                     {% if tarefa.prazo %}<span class="kanban-prazo">{{ tarefa.prazo|date:"d/m/Y" }}</span>{% endif %}
                   </div>
-                  <div class="kanban-card-setor">{{ tarefa.setor.nome|default:"Sem Setor" }}</div>
+                  <div class="kanban-card-tags">
+                    {% if tarefa.prioridade %}<span class="kanban-card-prioridade prioridade-{{ tarefa.prioridade }}">{{ tarefa.get_prioridade_display }}</span>{% endif %}
+                    {% if tarefa.funcao %}<span class="kanban-card-funcao">{{ tarefa.get_funcao_display }}</span>{% endif %}
+                    {% if tarefa.projeto %}<span class="kanban-card-projeto">{{ tarefa.projeto }}</span>{% endif %}
+                  </div>
+
+                  <a href="{% url 'gerenciar_anexos' tarefa.id %}" class="kanban-card-anexos">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+                    {% if tarefa.anexos_count %}{{ tarefa.anexos_count }} anexo{{ tarefa.anexos_count|pluralize }}{% else %}Anexos{% endif %}
+                  </a>
                   {% if can_manage_tasks %}
                     <form method="POST" action="{% url 'atualizar_tarefa' tarefa.id %}" class="kanban-status-form">
                       {% csrf_token %}
@@ -265,6 +294,7 @@
                       <button type="submit" class="btn-small">Mover</button>
                     </form>
                     <div class="kanban-card-actions">
+                      <a href="{% url 'gerenciar_anexos' tarefa.id %}" class="kbn-anexos">Anexos</a>
                       <a href="{% url 'editar_tarefa' tarefa.id %}" class="kbn-edit">Editar</a>
                       {% if can_manage_tasks %}<a href="{% url 'excluir_tarefa' tarefa.id %}" class="kbn-delete">Excluir</a>{% endif %}
                     </div>
@@ -361,6 +391,15 @@
                           <span>{{ tarefa.responsavel.usuario.get_full_name|default:tarefa.responsavel.usuario.username }}</span>
                           {% if tarefa.prazo %}<span class="kanban-prazo">{{ tarefa.prazo|date:"d/m/Y" }}</span>{% endif %}
                         </div>
+                        <div class="kanban-card-tags">
+                          {% if tarefa.prioridade %}<span class="kanban-card-prioridade prioridade-{{ tarefa.prioridade }}">{{ tarefa.get_prioridade_display }}</span>{% endif %}
+                          {% if tarefa.funcao %}<span class="kanban-card-funcao">{{ tarefa.get_funcao_display }}</span>{% endif %}
+                          {% if tarefa.projeto %}<span class="kanban-card-projeto">{{ tarefa.projeto }}</span>{% endif %}
+                        </div>
+                        <a href="{% url 'gerenciar_anexos' tarefa.id %}" class="kanban-card-anexos">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+                          {% if tarefa.anexos_count %}{{ tarefa.anexos_count }} anexo{{ tarefa.anexos_count|pluralize }}{% else %}Anexos{% endif %}
+                        </a>
                         {% if can_manage_tasks %}
                           <form method="POST" action="{% url 'atualizar_tarefa' tarefa.id %}" class="kanban-status-form">
                             {% csrf_token %}
@@ -372,6 +411,7 @@
                             <button type="submit" class="btn-small">Mover</button>
                           </form>
                           <div class="kanban-card-actions">
+                            <a href="{% url 'gerenciar_anexos' tarefa.id %}" class="kbn-anexos">Anexos</a>
                             <a href="{% url 'editar_tarefa' tarefa.id %}" class="kbn-edit">Editar</a>
                             {% if can_manage_tasks %}<a href="{% url 'excluir_tarefa' tarefa.id %}" class="kbn-delete">Excluir</a>{% endif %}
                           </div>
@@ -398,6 +438,15 @@
                           <span>{{ tarefa.responsavel.usuario.get_full_name|default:tarefa.responsavel.usuario.username }}</span>
                           {% if tarefa.prazo %}<span class="kanban-prazo">{{ tarefa.prazo|date:"d/m/Y" }}</span>{% endif %}
                         </div>
+                        <div class="kanban-card-tags">
+                          {% if tarefa.prioridade %}<span class="kanban-card-prioridade prioridade-{{ tarefa.prioridade }}">{{ tarefa.get_prioridade_display }}</span>{% endif %}
+                          {% if tarefa.funcao %}<span class="kanban-card-funcao">{{ tarefa.get_funcao_display }}</span>{% endif %}
+                          {% if tarefa.projeto %}<span class="kanban-card-projeto">{{ tarefa.projeto }}</span>{% endif %}
+                        </div>
+                        <a href="{% url 'gerenciar_anexos' tarefa.id %}" class="kanban-card-anexos">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+                          {% if tarefa.anexos_count %}{{ tarefa.anexos_count }} anexo{{ tarefa.anexos_count|pluralize }}{% else %}Anexos{% endif %}
+                        </a>
                         {% if can_manage_tasks %}
                           <form method="POST" action="{% url 'atualizar_tarefa' tarefa.id %}" class="kanban-status-form">
                             {% csrf_token %}
@@ -409,6 +458,7 @@
                             <button type="submit" class="btn-small">Mover</button>
                           </form>
                           <div class="kanban-card-actions">
+                            <a href="{% url 'gerenciar_anexos' tarefa.id %}" class="kbn-anexos">Anexos</a>
                             <a href="{% url 'editar_tarefa' tarefa.id %}" class="kbn-edit">Editar</a>
                             {% if can_manage_tasks %}<a href="{% url 'excluir_tarefa' tarefa.id %}" class="kbn-delete">Excluir</a>{% endif %}
                           </div>
@@ -435,6 +485,15 @@
                           <span>{{ tarefa.responsavel.usuario.get_full_name|default:tarefa.responsavel.usuario.username }}</span>
                           {% if tarefa.prazo %}<span class="kanban-prazo">{{ tarefa.prazo|date:"d/m/Y" }}</span>{% endif %}
                         </div>
+                        <div class="kanban-card-tags">
+                          {% if tarefa.prioridade %}<span class="kanban-card-prioridade prioridade-{{ tarefa.prioridade }}">{{ tarefa.get_prioridade_display }}</span>{% endif %}
+                          {% if tarefa.funcao %}<span class="kanban-card-funcao">{{ tarefa.get_funcao_display }}</span>{% endif %}
+                          {% if tarefa.projeto %}<span class="kanban-card-projeto">{{ tarefa.projeto }}</span>{% endif %}
+                        </div>
+                        <a href="{% url 'gerenciar_anexos' tarefa.id %}" class="kanban-card-anexos">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+                          {% if tarefa.anexos_count %}{{ tarefa.anexos_count }} anexo{{ tarefa.anexos_count|pluralize }}{% else %}Anexos{% endif %}
+                        </a>
                         {% if can_manage_tasks %}
                           <form method="POST" action="{% url 'atualizar_tarefa' tarefa.id %}" class="kanban-status-form">
                             {% csrf_token %}
@@ -446,6 +505,7 @@
                             <button type="submit" class="btn-small">Mover</button>
                           </form>
                           <div class="kanban-card-actions">
+                            <a href="{% url 'gerenciar_anexos' tarefa.id %}" class="kbn-anexos">Anexos</a>
                             <a href="{% url 'editar_tarefa' tarefa.id %}" class="kbn-edit">Editar</a>
                             {% if can_manage_tasks %}<a href="{% url 'excluir_tarefa' tarefa.id %}" class="kbn-delete">Excluir</a>{% endif %}
                           </div>
@@ -521,6 +581,15 @@
                     <span>{{ tarefa.responsavel.usuario.get_full_name|default:tarefa.responsavel.usuario.username }}</span>
                     {% if tarefa.prazo %}<span class="kanban-prazo">{{ tarefa.prazo|date:"d/m/Y" }}</span>{% endif %}
                   </div>
+                  <div class="kanban-card-tags">
+                    {% if tarefa.prioridade %}<span class="kanban-card-prioridade prioridade-{{ tarefa.prioridade }}">{{ tarefa.get_prioridade_display }}</span>{% endif %}
+                    {% if tarefa.funcao %}<span class="kanban-card-funcao">{{ tarefa.get_funcao_display }}</span>{% endif %}
+                    {% if tarefa.projeto %}<span class="kanban-card-projeto">{{ tarefa.projeto }}</span>{% endif %}
+                  </div>
+                  <a href="{% url 'gerenciar_anexos' tarefa.id %}" class="kanban-card-anexos">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+                    {% if tarefa.anexos_count %}{{ tarefa.anexos_count }} anexo{{ tarefa.anexos_count|pluralize }}{% else %}Anexos{% endif %}
+                  </a>
                   {% if can_manage_tasks %}
                     <form method="POST" action="{% url 'atualizar_tarefa' tarefa.id %}" class="kanban-status-form">
                       {% csrf_token %}
@@ -532,6 +601,7 @@
                       <button type="submit" class="btn-small">Mover</button>
                     </form>
                     <div class="kanban-card-actions">
+                      <a href="{% url 'gerenciar_anexos' tarefa.id %}" class="kbn-anexos">Anexos</a>
                       <a href="{% url 'editar_tarefa' tarefa.id %}" class="kbn-edit">Editar</a>
                       {% if can_manage_tasks %}<a href="{% url 'excluir_tarefa' tarefa.id %}" class="kbn-delete">Excluir</a>{% endif %}
                     </div>
@@ -559,6 +629,15 @@
                     <span>{{ tarefa.responsavel.usuario.get_full_name|default:tarefa.responsavel.usuario.username }}</span>
                     {% if tarefa.prazo %}<span class="kanban-prazo">{{ tarefa.prazo|date:"d/m/Y" }}</span>{% endif %}
                   </div>
+                  <div class="kanban-card-tags">
+                    {% if tarefa.prioridade %}<span class="kanban-card-prioridade prioridade-{{ tarefa.prioridade }}">{{ tarefa.get_prioridade_display }}</span>{% endif %}
+                    {% if tarefa.funcao %}<span class="kanban-card-funcao">{{ tarefa.get_funcao_display }}</span>{% endif %}
+                    {% if tarefa.projeto %}<span class="kanban-card-projeto">{{ tarefa.projeto }}</span>{% endif %}
+                  </div>
+                  <a href="{% url 'gerenciar_anexos' tarefa.id %}" class="kanban-card-anexos">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+                    {% if tarefa.anexos_count %}{{ tarefa.anexos_count }} anexo{{ tarefa.anexos_count|pluralize }}{% else %}Anexos{% endif %}
+                  </a>
                   {% if can_manage_tasks %}
                     <form method="POST" action="{% url 'atualizar_tarefa' tarefa.id %}" class="kanban-status-form">
                       {% csrf_token %}
@@ -570,6 +649,7 @@
                       <button type="submit" class="btn-small">Mover</button>
                     </form>
                     <div class="kanban-card-actions">
+                      <a href="{% url 'gerenciar_anexos' tarefa.id %}" class="kbn-anexos">Anexos</a>
                       <a href="{% url 'editar_tarefa' tarefa.id %}" class="kbn-edit">Editar</a>
                       {% if can_manage_tasks %}<a href="{% url 'excluir_tarefa' tarefa.id %}" class="kbn-delete">Excluir</a>{% endif %}
                     </div>
@@ -597,6 +677,15 @@
                     <span>{{ tarefa.responsavel.usuario.get_full_name|default:tarefa.responsavel.usuario.username }}</span>
                     {% if tarefa.prazo %}<span class="kanban-prazo">{{ tarefa.prazo|date:"d/m/Y" }}</span>{% endif %}
                   </div>
+                  <div class="kanban-card-tags">
+                    {% if tarefa.prioridade %}<span class="kanban-card-prioridade prioridade-{{ tarefa.prioridade }}">{{ tarefa.get_prioridade_display }}</span>{% endif %}
+                    {% if tarefa.funcao %}<span class="kanban-card-funcao">{{ tarefa.get_funcao_display }}</span>{% endif %}
+                    {% if tarefa.projeto %}<span class="kanban-card-projeto">{{ tarefa.projeto }}</span>{% endif %}
+                  </div>
+                  <a href="{% url 'gerenciar_anexos' tarefa.id %}" class="kanban-card-anexos">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+                    {% if tarefa.anexos_count %}{{ tarefa.anexos_count }} anexo{{ tarefa.anexos_count|pluralize }}{% else %}Anexos{% endif %}
+                  </a>
                   {% if can_manage_tasks %}
                     <form method="POST" action="{% url 'atualizar_tarefa' tarefa.id %}" class="kanban-status-form">
                       {% csrf_token %}
@@ -608,6 +697,7 @@
                       <button type="submit" class="btn-small">Mover</button>
                     </form>
                     <div class="kanban-card-actions">
+                      <a href="{% url 'gerenciar_anexos' tarefa.id %}" class="kbn-anexos">Anexos</a>
                       <a href="{% url 'editar_tarefa' tarefa.id %}" class="kbn-edit">Editar</a>
                       {% if can_manage_tasks %}<a href="{% url 'excluir_tarefa' tarefa.id %}" class="kbn-delete">Excluir</a>{% endif %}
                     </div>

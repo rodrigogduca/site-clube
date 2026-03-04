@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#060608">
+  <title>Anexos - {{ tarefa.titulo }}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/style_painel.css' %}">
+</head>
+<body>
+
+  <div class="bg-grid" aria-hidden="true"></div>
+
+  <nav class="painel-nav">
+    <a href="{% url 'home' %}" class="nav-logo">
+      <img src="{% static 'images/logo.png' %}" alt="Logo Clube de Programação">
+      <span>Clube de Programação</span>
+    </a>
+    <div class="nav-right">
+      <div class="user-menu">
+        <button class="user-avatar" type="button">{{ membro.usuario.first_name|make_list|first|default:"?" }}{{ membro.usuario.last_name|make_list|first|default:"" }}</button>
+        <div class="user-dropdown">
+          <div class="user-dropdown-header">
+            <strong>{{ membro.usuario.get_full_name|default:membro.usuario.username }}</strong>
+            <span>{{ membro.get_cargo_display }}</span>
+          </div>
+          <div class="user-dropdown-divider"></div>
+          <a href="{% url 'menu' %}" class="user-dropdown-item">Menu</a>
+          <a href="{% url 'painel' %}" class="user-dropdown-item">Painel</a>
+          <a href="{% url 'home' %}" class="user-dropdown-item">Página Inicial</a>
+          <div class="user-dropdown-divider"></div>
+          <form method="POST" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button type="submit" class="user-dropdown-item user-dropdown-logout">Sair</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main class="painel-container">
+    <div class="form-page">
+      <h1>Anexos da Tarefa</h1>
+      <p class="form-subtitle">{{ tarefa.titulo }}</p>
+
+      {% if messages %}
+        <div class="messages">
+          {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <!-- Lista de anexos existentes -->
+      <div class="form-card">
+        <h3 style="margin-bottom: 1rem;">Anexos Existentes</h3>
+        {% if anexos %}
+          <div class="anexos-list">
+            {% for anexo in anexos %}
+              <div class="anexo-item">
+                <div class="anexo-info">
+                  {% if anexo.tipo == 'link' %}
+                    <div class="anexo-header">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                      <a href="{{ anexo.url }}" target="_blank" rel="noopener">{{ anexo.nome }}</a>
+                    </div>
+                    <span class="text-muted" style="font-size: 0.8rem;">{{ anexo.url|truncatechars:60 }}</span>
+                  {% else %}
+                    <div class="anexo-header">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+                      <a href="{{ anexo.download_url }}" target="_blank">{{ anexo.nome }}</a>
+                    </div>
+                    {% if anexo.is_image %}
+                      <img src="{{ anexo.download_url }}" alt="{{ anexo.nome }}" class="anexo-thumbnail">
+                    {% endif %}
+                  {% endif %}
+                  <span class="text-muted" style="font-size: 0.75rem;">
+                    {% if anexo.enviado_por %}
+                      por {{ anexo.enviado_por.usuario.get_full_name|default:anexo.enviado_por.usuario.username }}
+                    {% endif %}
+                    em {{ anexo.data_upload|date:"d/m/Y H:i" }}
+                  </span>
+                </div>
+                <div class="anexo-actions">
+                  <a href="{% url 'editar_anexo' anexo.id %}" class="btn-small-outline">Editar</a>
+                  <a href="{% url 'excluir_anexo' anexo.id %}" class="btn-small-outline btn-outline-danger">Excluir</a>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p class="text-muted">Nenhum anexo adicionado ainda.</p>
+        {% endif %}
+      </div>
+
+      <!-- Formulário de upload de arquivo -->
+      <div class="form-card" style="margin-top: 1.5rem;">
+        <h3 style="margin-bottom: 1rem;">Enviar Arquivo</h3>
+        <form method="POST" enctype="multipart/form-data">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="upload_arquivo">
+
+          {% if form_arquivo.errors %}
+            <div class="error-messages">
+              <ul>
+              {% for field in form_arquivo %}
+                {% for error in field.errors %}
+                  <li>{{ error }}</li>
+                {% endfor %}
+              {% endfor %}
+              </ul>
+            </div>
+          {% endif %}
+
+          {% for field in form_arquivo %}
+            <div class="form-group">
+              <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+              {{ field }}
+            </div>
+          {% endfor %}
+
+          <button type="submit" class="btn-primary">Enviar Arquivo</button>
+        </form>
+      </div>
+
+      <!-- Formulário de adicionar link -->
+      <div class="form-card" style="margin-top: 1.5rem;">
+        <h3 style="margin-bottom: 1rem;">Adicionar Link</h3>
+        <form method="POST">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="add_link">
+
+          {% if form_link.errors %}
+            <div class="error-messages">
+              <ul>
+              {% for field in form_link %}
+                {% for error in field.errors %}
+                  <li>{{ error }}</li>
+                {% endfor %}
+              {% endfor %}
+              </ul>
+            </div>
+          {% endif %}
+
+          {% for field in form_link %}
+            <div class="form-group">
+              <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+              {{ field }}
+            </div>
+          {% endfor %}
+
+          <button type="submit" class="btn-primary">Adicionar Link</button>
+        </form>
+      </div>
+
+      <div class="form-buttons" style="margin-top: 1.5rem;">
+        <a href="{% url 'painel' %}" class="btn-secondary">Voltar ao Painel</a>
+      </div>
+    </div>
+  </main>
+
+  <script src="{% static 'js/painel.js' %}"></script>
+  <script>
+    document.querySelectorAll('input[type="file"]').forEach(function(input) {
+      var wrapper = document.createElement('div');
+      wrapper.className = 'file-upload-wrapper';
+      var btn = document.createElement('span');
+      btn.className = 'file-upload-btn';
+      btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg> Escolher arquivo';
+      var text = document.createElement('span');
+      text.className = 'file-upload-text';
+      text.textContent = 'Nenhum arquivo selecionado';
+      input.parentNode.insertBefore(wrapper, input);
+      wrapper.appendChild(btn);
+      wrapper.appendChild(text);
+      wrapper.appendChild(input);
+      input.addEventListener('change', function() {
+        text.textContent = this.files.length ? this.files[0].name : 'Nenhum arquivo selecionado';
+      });
+    });
+  </script>
+
+</body>
+</html>

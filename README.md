@@ -11,6 +11,7 @@ Sistema web para gestão interna do Clube de Programação. Permite que administ
 ### Presidente / Vice-Presidente / Administrador
 - Adicionar, editar e excluir membros do clube
 - Criar, editar e excluir tarefas e atribuí-las a membros
+- Anexar arquivos, imagens e links a tarefas (via Cloudinary)
 - Criar, editar e excluir setores
 - Gerenciar solicitações de cadastro (aprovar/rejeitar)
 - Visualizar a senha informada pelo solicitante antes de aprovar
@@ -23,6 +24,7 @@ Sistema web para gestão interna do Clube de Programação. Permite que administ
 ### Membro
 - Visualizar tarefas atribuídas em quadro Kanban
 - Alterar status das suas tarefas (Pendente, Em Andamento, Concluída)
+- Anexar arquivos, imagens e links às suas tarefas
 
 ### Geral
 - Autenticação com login por username ou email
@@ -49,6 +51,7 @@ Sistema web para gestão interna do Clube de Programação. Permite que administ
 | **Deploy** | Vercel (WSGI) |
 | **Arquivos estáticos** | WhiteNoise |
 | **Chat em tempo real** | Pusher |
+| **Armazenamento** | Cloudinary (arquivos/imagens) |
 
 ## Cargos e Permissões
 
@@ -68,9 +71,8 @@ Sistema web para gestão interna do Clube de Programação. Permite que administ
 clube-programacao/
 ├── manage.py
 ├── requirements.txt
-├── vercel.json
 ├── .env.example
-├── clube_de_programacao/
+├── setup/
 │   ├── settings.py
 │   ├── urls.py
 │   └── wsgi.py
@@ -131,6 +133,9 @@ Consulte `.env.example` para a lista completa. As principais são:
 | `EMAIL_HOST_USER` | Email para envio (Gmail SMTP) |
 | `EMAIL_HOST_PASSWORD` | Senha de app do Google |
 | `PUSHER_APP_ID` / `PUSHER_KEY` / `PUSHER_SECRET` | Credenciais do Pusher |
+| `CLOUDINARY_CLOUD_NAME` | Nome do cloud Cloudinary |
+| `CLOUDINARY_API_KEY` | Chave de API do Cloudinary |
+| `CLOUDINARY_API_SECRET` | Segredo de API do Cloudinary |
 
 ## Licença
 

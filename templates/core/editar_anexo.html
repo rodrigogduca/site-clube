@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#060608">
-  <title>Editar Tarefa - Clube de Programação</title>
+  <title>Editar Anexo - {{ anexo.nome }}</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -44,11 +44,11 @@
 
   <main class="painel-container">
     <div class="form-page">
-      <h1>Editar Tarefa</h1>
-      <p class="form-subtitle">Editando: {{ tarefa.titulo }}</p>
+      <h1>Editar Anexo</h1>
+      <p class="form-subtitle">{{ anexo.nome }} - {{ tarefa.titulo }}</p>
 
       <div class="form-card">
-        <form method="POST">
+        <form method="POST" enctype="multipart/form-data">
           {% csrf_token %}
 
           {% if form.errors %}
@@ -74,18 +74,34 @@
           {% endfor %}
 
           <div class="form-buttons">
-            <button type="submit" class="btn-primary">Salvar Alterações</button>
-            <a href="{% url 'painel' %}" class="btn-secondary">Cancelar</a>
+            <button type="submit" class="btn-primary">Salvar</button>
+            <a href="{% url 'gerenciar_anexos' tarefa.id %}" class="btn-secondary">Cancelar</a>
           </div>
         </form>
-        <div class="form-buttons" style="margin-top: 1rem;">
-          <a href="{% url 'gerenciar_anexos' tarefa.id %}" class="btn-secondary">Gerenciar Anexos</a>
-        </div>
       </div>
     </div>
   </main>
 
   <script src="{% static 'js/painel.js' %}"></script>
+  <script>
+    document.querySelectorAll('input[type="file"]').forEach(function(input) {
+      var wrapper = document.createElement('div');
+      wrapper.className = 'file-upload-wrapper';
+      var btn = document.createElement('span');
+      btn.className = 'file-upload-btn';
+      btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg> Escolher arquivo';
+      var text = document.createElement('span');
+      text.className = 'file-upload-text';
+      text.textContent = 'Nenhum arquivo selecionado';
+      input.parentNode.insertBefore(wrapper, input);
+      wrapper.appendChild(btn);
+      wrapper.appendChild(text);
+      wrapper.appendChild(input);
+      input.addEventListener('change', function() {
+        text.textContent = this.files.length ? this.files[0].name : 'Nenhum arquivo selecionado';
+      });
+    });
+  </script>
 
 </body>
 </html>

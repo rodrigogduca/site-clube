@@ -1,7 +1,7 @@
 {
   "builds": [
     {
-      "src": "clube_de_programacao/wsgi.py",
+      "src": "setup/wsgi.py",
       "use": "@vercel/python",
       "config": {
         "maxLambdaSize": "15mb",
@@ -12,7 +12,7 @@
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "clube_de_programacao/wsgi.py"
+      "dest": "setup/wsgi.py"
     }
   ]
 }

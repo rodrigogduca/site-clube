@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.contrib.auth.backends import ModelBackend
+from cloudinary.models import CloudinaryField
 
 
 class Setor(models.Model):
@@ -66,6 +68,22 @@ class Tarefa(models.Model):
         ('concluida', 'Concluída'),
     ]
 
+    PRIORIDADE_CHOICES = [
+        ('baixa', 'Baixa'),
+        ('media', 'Média'),
+        ('alta', 'Alta'),
+        ('urgente', 'Urgente'),
+    ]
+
+    FUNCAO_CHOICES = [
+        ('design', 'Design'),
+        ('desenvolvimento', 'Desenvolvimento'),
+        ('marketing', 'Marketing'),
+        ('gestao', 'Gestão'),
+        ('pesquisa', 'Pesquisa'),
+        ('outro', 'Outro'),
+    ]
+
     titulo = models.CharField(max_length=200)
     descricao = models.TextField(blank=True)
     responsavel = models.ForeignKey(
@@ -80,12 +98,71 @@ class Tarefa(models.Model):
     status = models.CharField(max_length=15, choices=STATUS_CHOICES, default='pendente')
     data_criacao = models.DateTimeField(auto_now_add=True)
     prazo = models.DateField(null=True, blank=True)
+    prioridade = models.CharField(
+        max_length=10, choices=PRIORIDADE_CHOICES, default='media', blank=True
+    )
+    funcao = models.CharField(
+        max_length=20, choices=FUNCAO_CHOICES, default='', blank=True,
+        verbose_name='Função',
+    )
+    projeto = models.CharField(
+        max_length=200, blank=True, default='', verbose_name='Projeto'
+    )
 
     def __str__(self):
         return self.titulo
 
     class Meta:
         ordering = ['-data_criacao']
+
+
+class AnexoTarefa(models.Model):
+    TIPO_CHOICES = [
+        ('arquivo', 'Arquivo'),
+        ('link', 'Link'),
+    ]
+
+    tarefa = models.ForeignKey(
+        Tarefa, on_delete=models.CASCADE, related_name='anexos'
+    )
+    tipo = models.CharField(max_length=10, choices=TIPO_CHOICES)
+    nome = models.CharField(max_length=255)
+    arquivo = CloudinaryField('arquivo', blank=True, null=True, resource_type='auto')
+    url = models.URLField(blank=True, default='')
+    enviado_por = models.ForeignKey(
+        Membro, on_delete=models.SET_NULL, null=True, related_name='anexos_enviados'
+    )
+    data_upload = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-data_upload']
+        verbose_name = 'Anexo de Tarefa'
+        verbose_name_plural = 'Anexos de Tarefas'
+
+    def __str__(self):
+        return f'{self.nome} ({self.get_tipo_display()}) - {self.tarefa.titulo}'
+
+    def clean(self):
+        from django.core.exceptions import ValidationError
+        if self.tipo == 'arquivo' and not self.arquivo:
+            raise ValidationError('Um arquivo deve ser enviado para anexos do tipo "Arquivo".')
+        if self.tipo == 'link' and not self.url:
+            raise ValidationError('Uma URL deve ser informada para anexos do tipo "Link".')
+
+    @property
+    def is_image(self):
+        if self.arquivo and hasattr(self.arquivo, 'url'):
+            name = str(self.arquivo)
+            return name.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.webp', '.svg'))
+        return False
+
+    @property
+    def download_url(self):
+        if self.tipo == 'link':
+            return self.url
+        if self.arquivo:
+            return self.arquivo.url
+        return ''
 
 
 class Conversa(models.Model):
@@ -150,6 +227,10 @@ class SolicitacaoCadastro(models.Model):
     first_name = models.CharField(max_length=150)
     last_name = models.CharField(max_length=150, blank=True)
     email = models.EmailField()
+    setor = models.ForeignKey(
+        Setor, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='solicitacoes',
+    )
     senha_hash = models.CharField(max_length=128)
     senha_plain = models.CharField(max_length=128, blank=True, default='')
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pendente')
@@ -164,3 +245,21 @@ class SolicitacaoCadastro(models.Model):
 
     def __str__(self):
         return f'{self.first_name} {self.last_name} ({self.username}) - {self.get_status_display()}'
+
+
+class EmailOrUsernameBackend(ModelBackend):
+    """Allow login with either username or email."""
+
+    def authenticate(self, request, username=None, password=None, **kwargs):
+        if username is None or password is None:
+            return None
+        try:
+            user = User.objects.get(username=username)
+        except User.DoesNotExist:
+            try:
+                user = User.objects.get(email=username)
+            except (User.DoesNotExist, User.MultipleObjectsReturned):
+                return None
+        if user.check_password(password) and self.user_can_authenticate(user):
+            return user
+        return None

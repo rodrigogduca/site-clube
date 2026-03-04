@@ -235,21 +235,29 @@ const btnProsel = document.getElementById('btnProsel');
 const modalProsel = document.getElementById('modalProsel');
 const modalProselClose = document.getElementById('modalProselClose');
 
-if (btnProsel && modalProsel) {
+if (btnProsel) {
   btnProsel.addEventListener('click', () => {
-    modalProsel.classList.add('open');
-    document.body.style.overflow = 'hidden';
+    window.open('https://tally.so/r/J926Po', '_blank');
   });
+}
 
+if (modalProsel && modalProselClose) {
   modalProselClose.addEventListener('click', () => {
     modalProsel.classList.remove('open');
     document.body.style.overflow = '';
+    // Remove query param from URL
+    const url = new URL(window.location);
+    url.searchParams.delete('prosel');
+    window.history.replaceState({}, '', url);
   });
 
   modalProsel.addEventListener('click', (e) => {
     if (e.target === modalProsel) {
       modalProsel.classList.remove('open');
       document.body.style.overflow = '';
+      const url = new URL(window.location);
+      url.searchParams.delete('prosel');
+      window.history.replaceState({}, '', url);
     }
   });
 
@@ -257,6 +265,15 @@ if (btnProsel && modalProsel) {
     if (e.key === 'Escape' && modalProsel.classList.contains('open')) {
       modalProsel.classList.remove('open');
       document.body.style.overflow = '';
+      const url = new URL(window.location);
+      url.searchParams.delete('prosel');
+      window.history.replaceState({}, '', url);
     }
   });
+
+  // Show thank-you popup if returning from Tally with ?prosel=obrigado
+  if (new URLSearchParams(window.location.search).get('prosel') === 'obrigado') {
+    modalProsel.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
 }

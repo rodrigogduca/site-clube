@@ -627,11 +627,23 @@ select.form-input {
 
 input[type="date"].form-input {
   color-scheme: dark;
+  appearance: auto;
+  -webkit-appearance: auto;
+  -moz-appearance: auto;
 }
 
 input[type="date"].form-input::-webkit-calendar-picker-indicator {
   filter: invert(1);
   cursor: pointer;
+  padding: 4px;
+  margin-right: -4px;
+  width: 20px;
+  height: 20px;
+  opacity: 0.7;
+}
+
+input[type="date"].form-input::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
 }
 
 .form-buttons {
@@ -1370,8 +1382,9 @@ input[type="date"].form-input::-webkit-calendar-picker-indicator {
 }
 
 .menu-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 1.25rem;
 }
 
@@ -1381,6 +1394,7 @@ input[type="date"].form-input::-webkit-calendar-picker-indicator {
   flex-direction: column;
   align-items: center;
   text-align: center;
+  width: calc(50% - 0.625rem);
   padding: 2rem 1.5rem;
   background: var(--bg-card);
   border: 1px solid var(--border);
@@ -1501,8 +1515,8 @@ input[type="date"].form-input::-webkit-calendar-picker-indicator {
 }
 
 @media (max-width: 600px) {
-  .menu-grid {
-    grid-template-columns: 1fr;
+  .menu-card {
+    width: 100%;
   }
 }
 
@@ -1802,4 +1816,276 @@ input[type="date"].form-input::-webkit-calendar-picker-indicator {
   transform: translateY(10px);
   animation: menuCardSlideUp 0.5s ease forwards;
   animation-delay: 0s;
+}
+
+/* ========================================
+   ANEXOS (gerenciar_anexos)
+   ======================================== */
+
+/* ---- Anexo count on kanban cards ---- */
+.kanban-card-anexos {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--primary);
+  background: rgba(242, 138, 31, 0.08);
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+  text-decoration: none;
+  transition: background 0.2s;
+}
+
+.kanban-card-anexos:hover {
+  background: rgba(242, 138, 31, 0.18);
+}
+
+.kanban-card-anexos svg {
+  opacity: 0.85;
+  color: var(--primary);
+}
+
+/* ---- Anexos list ---- */
+.anexos-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.anexo-item {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.85rem 1rem;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  transition: border-color 0.2s;
+}
+
+.anexo-item:hover {
+  border-color: var(--border-hover);
+}
+
+/* ---- Anexo info ---- */
+.anexo-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+  flex: 1;
+}
+
+.anexo-header {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.anexo-header svg {
+  flex-shrink: 0;
+  color: var(--text-muted);
+}
+
+.anexo-info a {
+  color: var(--primary);
+  text-decoration: none;
+  font-size: 0.875rem;
+  font-weight: 600;
+  word-break: break-all;
+}
+
+.anexo-info a:hover {
+  text-decoration: underline;
+}
+
+/* ---- Anexo thumbnail ---- */
+.anexo-thumbnail {
+  max-width: 120px;
+  max-height: 80px;
+  border-radius: 4px;
+  margin-top: 0.35rem;
+  object-fit: cover;
+  border: 1px solid var(--border);
+}
+
+/* ---- Anexo action buttons ---- */
+.anexo-actions {
+  display: flex;
+  gap: 0.4rem;
+  flex-shrink: 0;
+  align-items: flex-start;
+}
+
+/* ---- Small outline button (subtle/transparent) ---- */
+.btn-small-outline {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.3rem 0.65rem;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-small-outline:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text);
+  border-color: var(--border-hover);
+}
+
+/* ---- Outline danger modifier ---- */
+.btn-small-outline.btn-outline-danger {
+  color: var(--error);
+  border-color: rgba(239, 68, 68, 0.2);
+}
+
+.btn-small-outline.btn-outline-danger:hover {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.35);
+  color: var(--error);
+}
+
+/* ========================================
+   KANBAN CARD TAGS (prioridade, funcao, projeto)
+   ======================================== */
+
+.kanban-card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-top: 0.25rem;
+}
+
+/* ---- Priority badges ---- */
+.kanban-card-prioridade {
+  display: inline-block;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 0.1rem 0.45rem;
+  border-radius: 4px;
+}
+
+.prioridade-baixa {
+  background: rgba(107, 114, 128, 0.15);
+  color: #9ca3af;
+}
+
+.prioridade-media {
+  background: rgba(59, 130, 246, 0.15);
+  color: #3b82f6;
+}
+
+.prioridade-alta {
+  background: rgba(234, 179, 8, 0.15);
+  color: #eab308;
+}
+
+.prioridade-urgente {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+  animation: urgentPulse 2s ease-in-out infinite;
+}
+
+@keyframes urgentPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+  50% { box-shadow: 0 0 6px 1px rgba(239, 68, 68, 0.2); }
+}
+
+/* ---- Funcao tag ---- */
+.kanban-card-funcao {
+  display: inline-block;
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 0.1rem 0.45rem;
+  border-radius: 4px;
+  background: rgba(139, 92, 246, 0.12);
+  color: #a78bfa;
+}
+
+/* ---- Projeto tag ---- */
+.kanban-card-projeto {
+  display: inline-block;
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 0.1rem 0.45rem;
+  border-radius: 4px;
+  background: rgba(34, 197, 94, 0.12);
+  color: #4ade80;
+}
+
+/* ---- Prominent Anexos link in card actions ---- */
+.kanban-card-actions .kbn-anexos {
+  color: var(--primary);
+  font-weight: 700;
+}
+
+.kanban-card-actions .kbn-anexos:hover {
+  text-decoration: underline;
+}
+
+/* ---- Styled file upload button ---- */
+input[type="file"].form-input {
+  padding: 0;
+  border: none;
+  background: none;
+}
+
+.file-upload-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border: 1.5px dashed rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.02);
+  transition: all 0.2s;
+  cursor: pointer;
+}
+
+.file-upload-wrapper:hover {
+  border-color: var(--primary);
+  background: rgba(242, 138, 31, 0.04);
+}
+
+.file-upload-wrapper input[type="file"] {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.file-upload-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 18px;
+  background: var(--primary);
+  color: #060608;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 13px;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.file-upload-text {
+  color: var(--text-muted);
+  font-size: 13px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
