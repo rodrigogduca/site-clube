@@ -221,16 +221,6 @@ body {
   color: var(--text-dim);
 }
 
-.form-select {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  color: var(--text);
-  font-family: 'Inter', sans-serif;
-  font-size: 0.8rem;
-  padding: 0.4rem 0.6rem;
-  cursor: pointer;
-}
 
 /* ---- ERROR MESSAGES ---- */
 .error-messages {
