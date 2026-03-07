@@ -78,6 +78,7 @@
           {% if sol.setor %}
             <p>Setor: <strong>{{ sol.setor.nome }}</strong></p>
           {% endif %}
+          <p>Cargo: <strong>{{ sol.get_cargo_display }}</strong></p>
           {% if filtro_atual == 'pendente' and sol.senha_plain and membro.is_superadmin %}
             <p>Senha: <strong>{{ sol.senha_plain }}</strong></p>
           {% endif %}

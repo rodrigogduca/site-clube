@@ -231,6 +231,9 @@ class SolicitacaoCadastro(models.Model):
         Setor, on_delete=models.SET_NULL, null=True, blank=True,
         related_name='solicitacoes',
     )
+    cargo = models.CharField(
+        max_length=20, choices=Membro.CARGO_CHOICES, default='membro', blank=True,
+    )
     senha_hash = models.CharField(max_length=128)
     senha_plain = models.CharField(max_length=128, blank=True, default='')
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pendente')

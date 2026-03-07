@@ -187,13 +187,14 @@ class FormSetor(forms.ModelForm):
 class FormEditarSolicitacao(forms.ModelForm):
     class Meta:
         model = SolicitacaoCadastro
-        fields = ['first_name', 'last_name', 'username', 'email', 'setor']
+        fields = ['first_name', 'last_name', 'username', 'email', 'setor', 'cargo']
         widgets = {
             'first_name': forms.TextInput(attrs={'class': 'form-input'}),
             'last_name': forms.TextInput(attrs={'class': 'form-input'}),
             'username': forms.TextInput(attrs={'class': 'form-input'}),
             'email': forms.EmailInput(attrs={'class': 'form-input'}),
             'setor': forms.Select(attrs={'class': 'form-input'}),
+            'cargo': forms.Select(attrs={'class': 'form-input'}),
         }
         labels = {
             'first_name': 'Nome',
@@ -201,6 +202,7 @@ class FormEditarSolicitacao(forms.ModelForm):
             'username': 'Nome de usuário',
             'email': 'E-mail',
             'setor': 'Setor',
+            'cargo': 'Cargo desejado',
         }
 
     def clean_username(self):
@@ -251,6 +253,12 @@ class FormSolicitacao(forms.Form):
         queryset=Setor.objects.all(),
         label='Setor',
         required=False,
+        widget=forms.Select(attrs={'class': 'form-input'}),
+    )
+    cargo = forms.ChoiceField(
+        choices=Membro.CARGO_CHOICES,
+        label='Cargo desejado',
+        initial='membro',
         widget=forms.Select(attrs={'class': 'form-input'}),
     )
     senha = forms.CharField(
@@ -1193,6 +1201,7 @@ class SolicitarCadastroView(View):
                 last_name=form.cleaned_data.get('last_name', ''),
                 email=form.cleaned_data['email'],
                 setor=form.cleaned_data.get('setor'),
+                cargo=form.cleaned_data.get('cargo', 'membro'),
                 senha_hash=make_password(form.cleaned_data['senha']),
                 senha_plain=form.cleaned_data['senha'],
             )
@@ -1239,7 +1248,7 @@ class AprovarSolicitacaoView(LoginRequiredMixin, AdminRequiredMixin, View):
             password=solicitacao.senha_hash,
         )
         user.save()
-        novo_membro = Membro.objects.create(usuario=user, cargo='membro', setor=solicitacao.setor)
+        novo_membro = Membro.objects.create(usuario=user, cargo=solicitacao.cargo or 'membro', setor=solicitacao.setor)
         if solicitacao.setor and hasattr(solicitacao.setor, 'conversa'):
             solicitacao.setor.conversa.participantes.add(novo_membro)
         solicitacao.status = 'aprovada'
