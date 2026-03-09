@@ -1,12 +1,30 @@
 {% load static %}
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Clube de Programação - Iniciativa estudantil sem fins lucrativos para aprender, criar e evoluir com tecnologia.">
+  <meta name="description" content="Clube de Programação - Iniciativa estudantil sem fins lucrativos do SENAI CIMATEC para aprender, criar e evoluir com tecnologia. Projetos, workshops e comunidade aberta.">
+  <meta name="keywords" content="Clube de Programação, programação, SENAI CIMATEC, iniciativa estudantil, tecnologia, projetos, workshops, hackathon, aprender programação, comunidade, IA, cibersegurança, jogos, SEMCOMP">
+  <meta name="author" content="Clube de Programação - SENAI CIMATEC">
+  <meta name="robots" content="index, follow">
   <meta name="theme-color" content="#060608">
   <meta name="google-site-verification" content="Vdi_TFDAaX_yBjvK7NiUlW4519bafRowhVQl6DnhmKM" />
-  <title>Clube de Programação</title>
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Clube de Programação - Iniciativa Estudantil SENAI CIMATEC">
+  <meta property="og:description" content="Iniciativa estudantil sem fins lucrativos que une pessoas apaixonadas por tecnologia para aprender, criar e evoluir juntos. Mais de 60 membros ativos.">
+  <meta property="og:image" content="{% static 'images/logo.png' %}">
+  <meta property="og:locale" content="pt_BR">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Clube de Programação - Iniciativa Estudantil SENAI CIMATEC">
+  <meta name="twitter:description" content="Iniciativa estudantil sem fins lucrativos que une pessoas apaixonadas por tecnologia para aprender, criar e evoluir juntos.">
+  <meta name="twitter:image" content="{% static 'images/logo.png' %}">
+
+  <title>Clube de Programação - Iniciativa Estudantil | SENAI CIMATEC</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -350,6 +368,25 @@
       <span class="footer-tech">Feito por Rodrigo Gandarela</span>
     </div>
   </footer>
+
+  <!-- Schema.org Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Clube de Programação",
+    "description": "Iniciativa estudantil sem fins lucrativos do SENAI CIMATEC que une pessoas apaixonadas por tecnologia para aprender, criar e evoluir juntos.",
+    "foundingDate": "2021",
+    "memberOf": {
+      "@type": "EducationalOrganization",
+      "name": "SENAI CIMATEC"
+    },
+    "sameAs": [
+      "https://www.instagram.com/clubedeprogramacaocimatec",
+      "https://www.linkedin.com/company/clube-de-programa%C3%A7%C3%A3o"
+    ]
+  }
+  </script>
 
   <script src="{% static 'js/main.js' %}"></script>
 

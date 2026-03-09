@@ -9,7 +9,7 @@ from django.contrib.auth.models import User
 from django.contrib import messages
 from django.core.mail import send_mail
 from django.conf import settings
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.db import models as db_models
 from django.db.models import Count
 from django.views import View
@@ -1317,3 +1317,42 @@ class EditarSolicitacaoView(LoginRequiredMixin, AdminRequiredMixin, View):
         return render(request, 'core/editar_solicitacao.html', {
             'form': form, 'solicitacao': solicitacao, 'membro': self.membro,
         })
+
+
+# ============================================================================
+#  Views: SEO (robots.txt e sitemap.xml)
+# ============================================================================
+
+class RobotsTxtView(View):
+    def get(self, request):
+        lines = [
+            'User-agent: *',
+            'Allow: /',
+            '',
+            'Disallow: /painel/',
+            'Disallow: /accounts/',
+            'Disallow: /api/',
+            '',
+            f'Sitemap: {request.scheme}://{request.get_host()}/sitemap.xml',
+        ]
+        return HttpResponse('\n'.join(lines), content_type='text/plain')
+
+
+class SitemapXmlView(View):
+    def get(self, request):
+        base = f'{request.scheme}://{request.get_host()}'
+        urls = [
+            {'loc': f'{base}/', 'priority': '1.0', 'changefreq': 'weekly'},
+            {'loc': f'{base}/solicitar-cadastro/', 'priority': '0.7', 'changefreq': 'monthly'},
+            {'loc': f'{base}/accounts/login/', 'priority': '0.5', 'changefreq': 'monthly'},
+        ]
+        xml_parts = ['<?xml version="1.0" encoding="UTF-8"?>']
+        xml_parts.append('<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">')
+        for url in urls:
+            xml_parts.append('  <url>')
+            xml_parts.append(f'    <loc>{url["loc"]}</loc>')
+            xml_parts.append(f'    <changefreq>{url["changefreq"]}</changefreq>')
+            xml_parts.append(f'    <priority>{url["priority"]}</priority>')
+            xml_parts.append('  </url>')
+        xml_parts.append('</urlset>')
+        return HttpResponse('\n'.join(xml_parts), content_type='application/xml')
