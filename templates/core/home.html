@@ -4,27 +4,30 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Clube de Programação - Iniciativa estudantil sem fins lucrativos do SENAI CIMATEC para aprender, criar e evoluir com tecnologia. Projetos, workshops e comunidade aberta.">
-  <meta name="keywords" content="Clube de Programação, programação, SENAI CIMATEC, iniciativa estudantil, tecnologia, projetos, workshops, hackathon, aprender programação, comunidade, IA, cibersegurança, jogos, SEMCOMP">
+  <meta name="description" content="Clube de Programação SENAI CIMATEC - Iniciativa estudantil sem fins lucrativos. Aprenda programação na prática com projetos, workshops, hackathons, IA, cibersegurança e jogos. Mais de 60 membros ativos.">
+  <meta name="keywords" content="Clube de Programação, Clube de Programação SENAI CIMATEC, Clube de Programação Senai Cimatec, programação SENAI, iniciativa estudantil CIMATEC, aprender programação Salvador, SEMCOMP, clube de IA, clube de cibersegurança, clube de jogos, hackathon SENAI, workshop programação, projetos tecnologia CIMATEC">
   <meta name="author" content="Clube de Programação - SENAI CIMATEC">
-  <meta name="robots" content="index, follow">
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
   <meta name="theme-color" content="#060608">
   <meta name="google-site-verification" content="Vdi_TFDAaX_yBjvK7NiUlW4519bafRowhVQl6DnhmKM" />
+  <link rel="canonical" href="https://clube-de-programacao.vercel.app/">
 
   <!-- Open Graph / Facebook -->
   <meta property="og:type" content="website">
-  <meta property="og:title" content="Clube de Programação - Iniciativa Estudantil SENAI CIMATEC">
-  <meta property="og:description" content="Iniciativa estudantil sem fins lucrativos que une pessoas apaixonadas por tecnologia para aprender, criar e evoluir juntos. Mais de 60 membros ativos.">
-  <meta property="og:image" content="{% static 'images/logo.png' %}">
+  <meta property="og:url" content="https://clube-de-programacao.vercel.app/">
+  <meta property="og:site_name" content="Clube de Programação SENAI CIMATEC">
+  <meta property="og:title" content="Clube de Programação SENAI CIMATEC - Aprenda, Crie e Evolua com Tecnologia">
+  <meta property="og:description" content="Iniciativa estudantil sem fins lucrativos do SENAI CIMATEC que une pessoas apaixonadas por tecnologia. Projetos, workshops, hackathons e mais de 60 membros ativos.">
+  <meta property="og:image" content="https://clube-de-programacao.vercel.app/static/images/logo.png">
   <meta property="og:locale" content="pt_BR">
 
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Clube de Programação - Iniciativa Estudantil SENAI CIMATEC">
-  <meta name="twitter:description" content="Iniciativa estudantil sem fins lucrativos que une pessoas apaixonadas por tecnologia para aprender, criar e evoluir juntos.">
-  <meta name="twitter:image" content="{% static 'images/logo.png' %}">
+  <meta name="twitter:title" content="Clube de Programação SENAI CIMATEC - Aprenda, Crie e Evolua com Tecnologia">
+  <meta name="twitter:description" content="Iniciativa estudantil sem fins lucrativos do SENAI CIMATEC. Projetos, workshops, hackathons e mais de 60 membros ativos.">
+  <meta name="twitter:image" content="https://clube-de-programacao.vercel.app/static/images/logo.png">
 
-  <title>Clube de Programação - Iniciativa Estudantil | SENAI CIMATEC</title>
+  <title>Clube de Programação SENAI CIMATEC | Iniciativa Estudantil de Tecnologia</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -41,13 +44,14 @@
   <!-- NAVBAR -->
   <nav id="navbar">
     <a href="#" class="nav-logo">
-      <img src="{% static 'images/logo.png' %}" alt="Logo Clube de Programação">
+      <img src="{% static 'images/logo.png' %}" alt="Logo Clube de Programação SENAI CIMATEC">
       <span>Clube de Programação</span>
     </a>
     <ul class="nav-links">
       <li><a href="#sobre">Quem Somos</a></li>
       <li><a href="#diretores">Diretores</a></li>
       <li><a href="#projetos">Projetos</a></li>
+      <li><a href="#ferramentas">Ferramentas</a></li>
       <li><a href="#contato" class="nav-cta">Participe</a></li>
       {% if user.is_authenticated %}
       <li>
@@ -85,6 +89,7 @@
     <a href="#sobre">Quem Somos</a>
     <a href="#diretores">Diretores</a>
     <a href="#projetos">Projetos</a>
+    <a href="#ferramentas">Ferramentas</a>
     <a href="#contato">Participe</a>
     {% if user.is_authenticated %}
     <a href="{% url 'menu' %}">Menu</a>
@@ -102,8 +107,9 @@
   <header class="hero">
     <div class="container hero-content">
       <div class="hero-badge fade-in">Iniciativa Estudantil</div>
-      <img src="{% static 'images/logo.png' %}" alt="Logo Clube de Programação" class="hero-logo fade-in">
+      <img src="{% static 'images/logo.png' %}" alt="Logo do Clube de Programação SENAI CIMATEC" class="hero-logo fade-in">
       <h1 class="fade-in">Clube de<br><span class="highlight">Programação</span></h1>
+      <p class="hero-subtitle fade-in">Iniciativa Estudantil do SENAI CIMATEC</p>
       <p class="fade-in"><span class="hero-typing" data-text="Uma iniciativa estudantil sem fins lucrativos que une pessoas apaixonadas por tecnologia para aprender, criar e evoluir juntos."></span></p>
       <div class="hero-buttons fade-in">
         <a href="#contato" class="btn-primary">Quero participar</a>
@@ -291,6 +297,124 @@
 
   <div class="container"><hr class="divider"></div>
 
+  <!-- FERRAMENTAS ACADEMICAS -->
+  <section id="ferramentas">
+    <div class="container">
+      <span class="section-label fade-in">// ferramentas acadêmicas</span>
+      <h2 class="section-title fade-in">Calculadoras<br>do estudante</h2>
+      <p class="section-desc fade-in">Ferramentas úteis para acompanhar seu desempenho acadêmico no SENAI CIMATEC.</p>
+
+      <div class="tools-grid">
+
+        <!-- PASSEI SENAI? -->
+        <div class="tool-card fade-in">
+          <div class="tool-header">
+            <div class="tool-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#F28A1F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            </div>
+            <h3>Passei SENAI?</h3>
+            <p class="tool-desc">Calcule sua média semestral e descubra a nota mínima para a final.</p>
+          </div>
+          <div class="tool-body">
+            <div class="tool-pesos">
+              <span class="tool-peso-tag">AV1: 25%</span>
+              <span class="tool-peso-tag">AV2: 25%</span>
+              <span class="tool-peso-tag">AV3: 30%</span>
+              <span class="tool-peso-tag">EDAG: 20%</span>
+            </div>
+            <div class="tool-notas-grid">
+              <div class="tool-field">
+                <label for="notaAV1">AV1 <span class="tool-peso-label">(25%)</span></label>
+                <div class="tool-number-wrap">
+                  <input type="number" id="notaAV1" min="0" max="10" step="0.1" placeholder="0 a 10" class="tool-input">
+                  <div class="tool-number-btns">
+                    <button type="button" class="tool-number-btn" data-dir="up" aria-label="Aumentar"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 8L6 4L10 8"/></svg></button>
+                    <button type="button" class="tool-number-btn" data-dir="down" aria-label="Diminuir"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 4L6 8L10 4"/></svg></button>
+                  </div>
+                </div>
+              </div>
+              <div class="tool-field">
+                <label for="notaAV2">AV2 <span class="tool-peso-label">(25%)</span></label>
+                <div class="tool-number-wrap">
+                  <input type="number" id="notaAV2" min="0" max="10" step="0.1" placeholder="0 a 10" class="tool-input">
+                  <div class="tool-number-btns">
+                    <button type="button" class="tool-number-btn" data-dir="up" aria-label="Aumentar"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 8L6 4L10 8"/></svg></button>
+                    <button type="button" class="tool-number-btn" data-dir="down" aria-label="Diminuir"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 4L6 8L10 4"/></svg></button>
+                  </div>
+                </div>
+              </div>
+              <div class="tool-field">
+                <label for="notaAV3">AV3 <span class="tool-peso-label">(30%)</span></label>
+                <div class="tool-number-wrap">
+                  <input type="number" id="notaAV3" min="0" max="10" step="0.1" placeholder="0 a 10" class="tool-input">
+                  <div class="tool-number-btns">
+                    <button type="button" class="tool-number-btn" data-dir="up" aria-label="Aumentar"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 8L6 4L10 8"/></svg></button>
+                    <button type="button" class="tool-number-btn" data-dir="down" aria-label="Diminuir"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 4L6 8L10 4"/></svg></button>
+                  </div>
+                </div>
+              </div>
+              <div class="tool-field">
+                <label for="notaEDAG">EDAG <span class="tool-peso-label">(20%)</span></label>
+                <div class="tool-number-wrap">
+                  <input type="number" id="notaEDAG" min="0" max="10" step="0.1" placeholder="0 a 10" class="tool-input">
+                  <div class="tool-number-btns">
+                    <button type="button" class="tool-number-btn" data-dir="up" aria-label="Aumentar"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 8L6 4L10 8"/></svg></button>
+                    <button type="button" class="tool-number-btn" data-dir="down" aria-label="Diminuir"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 4L6 8L10 4"/></svg></button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <button type="button" id="btnCalcularMedia" class="tool-btn">Calcular</button>
+            <div id="resultadoMedia" class="tool-result" style="display:none;"></div>
+          </div>
+        </div>
+
+        <!-- CALCULADORA DE FALTAS -->
+        <div class="tool-card fade-in">
+          <div class="tool-header">
+            <div class="tool-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#F28A1F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            </div>
+            <h3>Calculadora de Faltas</h3>
+            <p class="tool-desc">Descubra quantas faltas você ainda pode ter. Cada dia = 2 aulas de 50min. Presença mínima: 75%.</p>
+          </div>
+          <div class="tool-body">
+            <div class="tool-field">
+              <label for="cargaHoraria">Carga horária da disciplina</label>
+              <div class="tool-select-wrap">
+                <select id="cargaHoraria" class="tool-input">
+                  <option value="" disabled selected>Selecione a carga horária</option>
+                  <option value="30">30 horas</option>
+                  <option value="60">60 horas</option>
+                  <option value="90">90 horas</option>
+                  <option value="105">105 horas</option>
+                </select>
+                <div class="tool-select-arrow">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+                </div>
+              </div>
+            </div>
+            <div class="tool-field">
+              <label for="faltasAtuais">Faltas já acumuladas (dias)</label>
+              <div class="tool-number-wrap">
+                <input type="number" id="faltasAtuais" min="0" max="500" value="0" placeholder="ex: 3" class="tool-input">
+                <div class="tool-number-btns">
+                  <button type="button" class="tool-number-btn" data-dir="up" aria-label="Aumentar"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 8L6 4L10 8"/></svg></button>
+                  <button type="button" class="tool-number-btn" data-dir="down" aria-label="Diminuir"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 4L6 8L10 4"/></svg></button>
+                </div>
+              </div>
+            </div>
+            <button type="button" id="btnCalcularFaltas" class="tool-btn">Calcular</button>
+            <div id="resultadoFaltas" class="tool-result" style="display:none;"></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <div class="container"><hr class="divider"></div>
+
   <!-- CTA -->
   <section id="contato" class="cta-section">
     <div class="container">
@@ -362,8 +486,8 @@
   <footer>
     <div class="container footer-inner">
       <div class="footer-left">
-        <img src="{% static 'images/logo.png' %}" alt="Logo" aria-hidden="true">
-        <span>Clube de Programação &mdash; Iniciativa estudantil sem fins lucrativos</span>
+        <img src="{% static 'images/logo.png' %}" alt="Clube de Programação SENAI CIMATEC" aria-hidden="true">
+        <span>Clube de Programação &mdash; Iniciativa Estudantil do SENAI CIMATEC</span>
       </div>
       <span class="footer-tech">Feito por Rodrigo Gandarela</span>
     </div>
@@ -375,16 +499,39 @@
     "@context": "https://schema.org",
     "@type": "Organization",
     "name": "Clube de Programação",
-    "description": "Iniciativa estudantil sem fins lucrativos do SENAI CIMATEC que une pessoas apaixonadas por tecnologia para aprender, criar e evoluir juntos.",
+    "alternateName": ["Clube de Programação SENAI CIMATEC", "Clube de Programação Cimatec"],
+    "url": "https://clube-de-programacao.vercel.app/",
+    "logo": "https://clube-de-programacao.vercel.app/static/images/logo.png",
+    "description": "Iniciativa estudantil sem fins lucrativos do SENAI CIMATEC que une pessoas apaixonadas por tecnologia para aprender, criar e evoluir juntos. Programação, IA, cibersegurança e jogos.",
     "foundingDate": "2021",
+    "numberOfEmployees": {
+      "@type": "QuantitativeValue",
+      "value": 60,
+      "unitText": "membros ativos"
+    },
     "memberOf": {
       "@type": "EducationalOrganization",
-      "name": "SENAI CIMATEC"
+      "name": "SENAI CIMATEC",
+      "url": "https://www.senaicimatec.com.br"
+    },
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "Salvador",
+      "addressRegion": "BA",
+      "addressCountry": "BR"
     },
     "sameAs": [
       "https://www.instagram.com/clubedeprogramacaocimatec",
       "https://www.linkedin.com/company/clube-de-programa%C3%A7%C3%A3o"
     ]
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "Clube de Programação SENAI CIMATEC",
+    "url": "https://clube-de-programacao.vercel.app/"
   }
   </script>
 

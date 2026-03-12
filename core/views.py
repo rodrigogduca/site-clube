@@ -381,6 +381,17 @@ class AdminRequiredMixin(MembroMixin):
         return None
 
 
+class AdminOrDiretorRequiredMixin(MembroMixin):
+    """Verifica is_admin() ou is_diretor(), redireciona com erro se não."""
+    admin_error_message = 'Você não tem permissão para esta ação.'
+
+    def check_membro_permission(self):
+        if not (self.membro.is_admin() or self.membro.is_diretor()):
+            messages.error(self.request, self.admin_error_message)
+            return redirect('painel')
+        return None
+
+
 class TarefaPermissionMixin(MembroMixin):
     """Carrega tarefa por tarefa_id da URL, verifica permissão."""
     tarefa_allow_assignee = False
@@ -436,6 +447,10 @@ class MenuView(LoginRequiredMixin, MembroMixin, View):
         solicitacoes_pendentes = 0
         if self.membro.is_admin():
             solicitacoes_pendentes = SolicitacaoCadastro.objects.filter(status='pendente').count()
+        elif self.membro.is_diretor() and self.membro.setor:
+            solicitacoes_pendentes = SolicitacaoCadastro.objects.filter(
+                status='pendente', setor=self.membro.setor
+            ).count()
         return render(request, 'core/menu.html', {
             'membro': self.membro,
             'solicitacoes_pendentes': solicitacoes_pendentes,
@@ -1213,7 +1228,7 @@ class SolicitarCadastroView(View):
         return render(request, 'core/solicitar_cadastro.html', {'form': form})
 
 
-class ListarSolicitacoesView(LoginRequiredMixin, AdminRequiredMixin, View):
+class ListarSolicitacoesView(LoginRequiredMixin, AdminOrDiretorRequiredMixin, View):
     admin_error_message = 'Você não tem permissão para gerenciar solicitações.'
 
     def get(self, request):
@@ -1221,6 +1236,8 @@ class ListarSolicitacoesView(LoginRequiredMixin, AdminRequiredMixin, View):
         if filtro not in ('pendente', 'aprovada', 'rejeitada'):
             filtro = 'pendente'
         solicitacoes = SolicitacaoCadastro.objects.filter(status=filtro)
+        if self.membro.is_diretor() and self.membro.setor:
+            solicitacoes = solicitacoes.filter(setor=self.membro.setor)
         return render(request, 'core/solicitacoes.html', {
             'membro': self.membro,
             'solicitacoes': solicitacoes,
@@ -1228,12 +1245,15 @@ class ListarSolicitacoesView(LoginRequiredMixin, AdminRequiredMixin, View):
         })
 
 
-class AprovarSolicitacaoView(LoginRequiredMixin, AdminRequiredMixin, View):
+class AprovarSolicitacaoView(LoginRequiredMixin, AdminOrDiretorRequiredMixin, View):
     admin_error_message = 'Você não tem permissão para aprovar solicitações.'
 
     def post(self, request, solicitacao_id):
         from django.utils import timezone
         solicitacao = get_object_or_404(SolicitacaoCadastro, id=solicitacao_id, status='pendente')
+        if self.membro.is_diretor() and (not self.membro.setor or solicitacao.setor != self.membro.setor):
+            messages.error(request, 'Você só pode aprovar solicitações do seu setor.')
+            return redirect('listar_solicitacoes')
         if User.objects.filter(username=solicitacao.username).exists():
             messages.error(request, f'O nome de usuário "{solicitacao.username}" já está em uso.')
             return redirect('listar_solicitacoes')
@@ -1263,12 +1283,15 @@ class AprovarSolicitacaoView(LoginRequiredMixin, AdminRequiredMixin, View):
         return redirect('listar_solicitacoes')
 
 
-class RejeitarSolicitacaoView(LoginRequiredMixin, AdminRequiredMixin, View):
+class RejeitarSolicitacaoView(LoginRequiredMixin, AdminOrDiretorRequiredMixin, View):
     admin_error_message = 'Você não tem permissão para rejeitar solicitações.'
 
     def post(self, request, solicitacao_id):
         from django.utils import timezone
         solicitacao = get_object_or_404(SolicitacaoCadastro, id=solicitacao_id, status='pendente')
+        if self.membro.is_diretor() and (not self.membro.setor or solicitacao.setor != self.membro.setor):
+            messages.error(request, 'Você só pode rejeitar solicitações do seu setor.')
+            return redirect('listar_solicitacoes')
         solicitacao.status = 'rejeitada'
         solicitacao.data_resposta = timezone.now()
         solicitacao.respondido_por = request.user
@@ -1281,11 +1304,14 @@ class RejeitarSolicitacaoView(LoginRequiredMixin, AdminRequiredMixin, View):
         return redirect('listar_solicitacoes')
 
 
-class ExcluirSolicitacaoView(LoginRequiredMixin, AdminRequiredMixin, View):
+class ExcluirSolicitacaoView(LoginRequiredMixin, AdminOrDiretorRequiredMixin, View):
     admin_error_message = 'Você não tem permissão para excluir solicitações.'
 
     def post(self, request, solicitacao_id):
         solicitacao = get_object_or_404(SolicitacaoCadastro, id=solicitacao_id)
+        if self.membro.is_diretor() and (not self.membro.setor or solicitacao.setor != self.membro.setor):
+            messages.error(request, 'Você só pode excluir solicitações do seu setor.')
+            return redirect('listar_solicitacoes')
         if solicitacao.status == 'pendente':
             messages.error(request, 'Não é possível excluir solicitações pendentes. Aprove ou rejeite primeiro.')
             return redirect('listar_solicitacoes')
@@ -1297,11 +1323,14 @@ class ExcluirSolicitacaoView(LoginRequiredMixin, AdminRequiredMixin, View):
         return redirect(f"{reverse('listar_solicitacoes')}?status={status_anterior}")
 
 
-class EditarSolicitacaoView(LoginRequiredMixin, AdminRequiredMixin, View):
+class EditarSolicitacaoView(LoginRequiredMixin, AdminOrDiretorRequiredMixin, View):
     admin_error_message = 'Você não tem permissão para editar solicitações.'
 
     def get(self, request, solicitacao_id):
         solicitacao = get_object_or_404(SolicitacaoCadastro, id=solicitacao_id, status='pendente')
+        if self.membro.is_diretor() and (not self.membro.setor or solicitacao.setor != self.membro.setor):
+            messages.error(request, 'Você só pode editar solicitações do seu setor.')
+            return redirect('listar_solicitacoes')
         form = FormEditarSolicitacao(instance=solicitacao)
         return render(request, 'core/editar_solicitacao.html', {
             'form': form, 'solicitacao': solicitacao, 'membro': self.membro,
@@ -1309,6 +1338,9 @@ class EditarSolicitacaoView(LoginRequiredMixin, AdminRequiredMixin, View):
 
     def post(self, request, solicitacao_id):
         solicitacao = get_object_or_404(SolicitacaoCadastro, id=solicitacao_id, status='pendente')
+        if self.membro.is_diretor() and (not self.membro.setor or solicitacao.setor != self.membro.setor):
+            messages.error(request, 'Você só pode editar solicitações do seu setor.')
+            return redirect('listar_solicitacoes')
         form = FormEditarSolicitacao(request.POST, instance=solicitacao)
         if form.is_valid():
             form.save()
@@ -1333,18 +1365,17 @@ class RobotsTxtView(View):
             'Disallow: /accounts/',
             'Disallow: /api/',
             '',
-            f'Sitemap: {request.scheme}://{request.get_host()}/sitemap.xml',
+            'Sitemap: https://clube-de-programacao.vercel.app/sitemap.xml',
         ]
         return HttpResponse('\n'.join(lines), content_type='text/plain')
 
 
 class SitemapXmlView(View):
     def get(self, request):
-        base = f'{request.scheme}://{request.get_host()}'
+        base = 'https://clube-de-programacao.vercel.app'
         urls = [
             {'loc': f'{base}/', 'priority': '1.0', 'changefreq': 'weekly'},
             {'loc': f'{base}/solicitar-cadastro/', 'priority': '0.7', 'changefreq': 'monthly'},
-            {'loc': f'{base}/accounts/login/', 'priority': '0.5', 'changefreq': 'monthly'},
         ]
         xml_parts = ['<?xml version="1.0" encoding="UTF-8"?>']
         xml_parts.append('<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">')
