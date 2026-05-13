@@ -10,22 +10,23 @@
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
   <meta name="theme-color" content="#060608">
   <meta name="google-site-verification" content="Vdi_TFDAaX_yBjvK7NiUlW4519bafRowhVQl6DnhmKM" />
-  <link rel="canonical" href="https://clube-de-programacao.vercel.app/">
+  <link rel="canonical" href="{{ canonical_url }}">
+  <link rel="sitemap" type="application/xml" href="{{ site_url }}/sitemap.xml">
 
   <!-- Open Graph / Facebook -->
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://clube-de-programacao.vercel.app/">
+  <meta property="og:url" content="{{ canonical_url }}">
   <meta property="og:site_name" content="Clube de Programação SENAI CIMATEC">
   <meta property="og:title" content="Clube de Programação SENAI CIMATEC - Aprenda, Crie e Evolua com Tecnologia">
   <meta property="og:description" content="Iniciativa estudantil sem fins lucrativos do SENAI CIMATEC que une pessoas apaixonadas por tecnologia. Projetos, workshops, hackathons e mais de 60 membros ativos.">
-  <meta property="og:image" content="https://clube-de-programacao.vercel.app/static/images/logo.png">
+  <meta property="og:image" content="{{ site_url }}{% static 'images/logo.png' %}">
   <meta property="og:locale" content="pt_BR">
 
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Clube de Programação SENAI CIMATEC - Aprenda, Crie e Evolua com Tecnologia">
   <meta name="twitter:description" content="Iniciativa estudantil sem fins lucrativos do SENAI CIMATEC. Projetos, workshops, hackathons e mais de 60 membros ativos.">
-  <meta name="twitter:image" content="https://clube-de-programacao.vercel.app/static/images/logo.png">
+  <meta name="twitter:image" content="{{ site_url }}{% static 'images/logo.png' %}">
 
   <title>Clube de Programação SENAI CIMATEC | Iniciativa Estudantil de Tecnologia</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -43,7 +44,7 @@
 
   <!-- NAVBAR -->
   <nav id="navbar">
-    <a href="#" class="nav-logo">
+    <a href="{% url 'home' %}" class="nav-logo">
       <img src="{% static 'images/logo.png' %}" alt="Logo Clube de Programação SENAI CIMATEC">
       <span>Clube de Programação</span>
     </a>
@@ -272,21 +273,21 @@
       <div class="projects-grid stagger-children">
         <div class="project-card fade-in">
           <div class="project-icon">
-            <img src="{% static 'images/logo_ia.jpeg' %}" alt="Logo Clube de IA" class="project-logo">
+            <img src="{% static 'images/logo_ia.jpeg' %}" alt="Logo Clube de IA" class="project-logo" loading="lazy" decoding="async">
           </div>
           <h3>Clube de IA</h3>
           <p>Exploramos inteligência artificial, machine learning e suas aplicações práticas.</p>
         </div>
         <div class="project-card fade-in">
           <div class="project-icon">
-            <img src="{% static 'images/logo_cyber.jpeg' %}" alt="Logo Clube de Cibersegurança" class="project-logo">
+            <img src="{% static 'images/logo_cyber.jpeg' %}" alt="Logo Clube de Cibersegurança" class="project-logo" loading="lazy" decoding="async">
           </div>
           <h3>Clube de Cibersegurança</h3>
           <p>Estudamos segurança da informação, CTFs e proteção de sistemas.</p>
         </div>
         <div class="project-card fade-in">
           <div class="project-icon">
-            <img src="{% static 'images/logo_jogos.jpeg' %}" alt="Logo Clube de Jogos" class="project-logo">
+            <img src="{% static 'images/logo_jogos.jpeg' %}" alt="Logo Clube de Jogos" class="project-logo" loading="lazy" decoding="async">
           </div>
           <h3>Clube de Jogos</h3>
           <p>Desenvolvemos jogos e exploramos engines, design e programação interativa.</p>
@@ -437,7 +438,7 @@
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
       </button>
       <div class="modal-header">
-        <img src="{% static 'images/logo.png' %}" alt="Logo" class="modal-logo">
+        <img src="{% static 'images/logo.png' %}" alt="Logo" class="modal-logo" loading="lazy" decoding="async">
         <h2>Obrigado!</h2>
         <p>Sua inscrição no PROSEL foi enviada com sucesso! Fique atento às nossas redes sociais para acompanhar o resultado.</p>
       </div>
@@ -457,7 +458,7 @@
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
       </button>
       <div class="modal-header">
-        <img src="{% static 'images/logo.png' %}" alt="Logo" class="modal-logo">
+        <img src="{% static 'images/logo.png' %}" alt="Logo" class="modal-logo" loading="lazy" decoding="async">
         <h2>Clube de Programação</h2>
         <p>Iniciativa estudantil sem fins lucrativos do SENAI CIMATEC. Aprendemos programação na prática através de projetos, workshops e muita colaboração.</p>
       </div>
@@ -486,7 +487,7 @@
   <footer>
     <div class="container footer-inner">
       <div class="footer-left">
-        <img src="{% static 'images/logo.png' %}" alt="Clube de Programação SENAI CIMATEC" aria-hidden="true">
+        <img src="{% static 'images/logo.png' %}" alt="Clube de Programação SENAI CIMATEC" aria-hidden="true" loading="lazy" decoding="async">
         <span>Clube de Programação &mdash; Iniciativa Estudantil do SENAI CIMATEC</span>
       </div>
       <span class="footer-tech">Feito por Rodrigo Gandarela</span>
@@ -500,8 +501,8 @@
     "@type": "Organization",
     "name": "Clube de Programação",
     "alternateName": ["Clube de Programação SENAI CIMATEC", "Clube de Programação Cimatec"],
-    "url": "https://clube-de-programacao.vercel.app/",
-    "logo": "https://clube-de-programacao.vercel.app/static/images/logo.png",
+    "url": "{{ site_url }}/",
+    "logo": "{{ site_url }}{% static 'images/logo.png' %}",
     "description": "Iniciativa estudantil sem fins lucrativos do SENAI CIMATEC que une pessoas apaixonadas por tecnologia para aprender, criar e evoluir juntos. Programação, IA, cibersegurança e jogos.",
     "foundingDate": "2021",
     "numberOfEmployees": {
@@ -531,7 +532,7 @@
     "@context": "https://schema.org",
     "@type": "WebSite",
     "name": "Clube de Programação SENAI CIMATEC",
-    "url": "https://clube-de-programacao.vercel.app/"
+    "url": "{{ site_url }}/"
   }
   </script>
 

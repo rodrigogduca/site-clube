@@ -12,9 +12,13 @@ from django.conf import settings
 from django.http import JsonResponse, HttpResponse
 from django.db import models as db_models
 from django.db.models import Count
+from django.urls import reverse
+from django.utils import timezone
 from django.views import View
+from xml.sax.saxutils import escape
 
 from .models import Membro, Tarefa, Setor, Conversa, Mensagem, SolicitacaoCadastro, AnexoTarefa
+from .utils import get_site_base_url
 
 logger = logging.getLogger(__name__)
 
@@ -437,7 +441,10 @@ class HomeView(View):
                 defaults={'cargo': 'presidente' if request.user.is_superuser else 'membro'},
             )
             context['membro'] = membro
-        return render(request, 'core/home.html', context)
+        response = render(request, 'core/home.html', context)
+        if not request.user.is_authenticated:
+            response['Cache-Control'] = 'public, max-age=300, s-maxage=300, stale-while-revalidate=60'
+        return response
 
 
 class MenuView(LoginRequiredMixin, MembroMixin, View):
@@ -1202,7 +1209,9 @@ class SolicitarCadastroView(View):
         if request.user.is_authenticated:
             return redirect('painel')
         form = FormSolicitacao()
-        return render(request, 'core/solicitar_cadastro.html', {'form': form})
+        response = render(request, 'core/solicitar_cadastro.html', {'form': form})
+        response['Cache-Control'] = 'no-store'
+        return response
 
     def post(self, request):
         if request.user.is_authenticated:
@@ -1357,33 +1366,48 @@ class EditarSolicitacaoView(LoginRequiredMixin, AdminOrDiretorRequiredMixin, Vie
 
 class RobotsTxtView(View):
     def get(self, request):
+        site_url = get_site_base_url(request)
+        sitemap_url = f'{site_url}{reverse("sitemap_xml")}'
         lines = [
             'User-agent: *',
             'Allow: /',
             '',
+            'Disallow: /menu/',
             'Disallow: /painel/',
             'Disallow: /accounts/',
             'Disallow: /api/',
+            'Disallow: /admin/',
             '',
-            'Sitemap: https://clube-de-programacao.vercel.app/sitemap.xml',
+            f'Sitemap: {sitemap_url}',
         ]
-        return HttpResponse('\n'.join(lines), content_type='text/plain')
+        response = HttpResponse('\n'.join(lines), content_type='text/plain; charset=utf-8')
+        response['Cache-Control'] = 'public, max-age=21600, s-maxage=86400, stale-while-revalidate=3600'
+        return response
 
 
 class SitemapXmlView(View):
     def get(self, request):
-        base = 'https://clube-de-programacao.vercel.app'
+        base = get_site_base_url(request)
+        today = timezone.now().date().isoformat()
         urls = [
-            {'loc': f'{base}/', 'priority': '1.0', 'changefreq': 'weekly'},
-            {'loc': f'{base}/solicitar-cadastro/', 'priority': '0.7', 'changefreq': 'monthly'},
+            {'loc': f'{base}{reverse("home")}', 'priority': '1.0', 'changefreq': 'weekly', 'lastmod': today},
+            {
+                'loc': f'{base}{reverse("solicitar_cadastro")}',
+                'priority': '0.7',
+                'changefreq': 'monthly',
+                'lastmod': today,
+            },
         ]
         xml_parts = ['<?xml version="1.0" encoding="UTF-8"?>']
         xml_parts.append('<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">')
         for url in urls:
             xml_parts.append('  <url>')
-            xml_parts.append(f'    <loc>{url["loc"]}</loc>')
+            xml_parts.append(f'    <loc>{escape(url["loc"])}</loc>')
             xml_parts.append(f'    <changefreq>{url["changefreq"]}</changefreq>')
             xml_parts.append(f'    <priority>{url["priority"]}</priority>')
+            xml_parts.append(f'    <lastmod>{url["lastmod"]}</lastmod>')
             xml_parts.append('  </url>')
         xml_parts.append('</urlset>')
-        return HttpResponse('\n'.join(xml_parts), content_type='application/xml')
+        response = HttpResponse('\n'.join(xml_parts), content_type='application/xml; charset=utf-8')
+        response['Cache-Control'] = 'public, max-age=21600, s-maxage=86400, stale-while-revalidate=3600'
+        return response

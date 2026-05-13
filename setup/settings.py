@@ -70,6 +70,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'django.middleware.gzip.GZipMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -80,6 +81,8 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'setup.urls'
+
+APPEND_SLASH = True
 
 TEMPLATES = [
     {
@@ -93,6 +96,7 @@ TEMPLATES = [
                 'django.template.context_processors.i18n',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'core.context_processors.site_meta',
             ],
         },
     },
@@ -178,6 +182,7 @@ X_FRAME_OPTIONS = os.getenv('X_FRAME_OPTIONS', 'DENY')
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 WHITENOISE_USE_FINDERS = True
+WHITENOISE_MAX_AGE = 86400
 STORAGES = {
     "default": {
         "BACKEND": "django.core.files.storage.FileSystemStorage",
@@ -203,6 +208,18 @@ if _vercel_url:
 _vercel_prod_url = os.getenv('VERCEL_PROJECT_PRODUCTION_URL')
 if _vercel_prod_url:
     CSRF_TRUSTED_ORIGINS.append(f'https://{_vercel_prod_url}')
+
+# Public base URL used for canonical tags, robots.txt and sitemap.xml.
+# Prefer explicit SITE_URL, then Vercel production URL, then preview URL.
+_site_url = os.getenv('SITE_URL', '').strip().rstrip('/')
+if _site_url:
+    SITE_URL = _site_url
+elif _vercel_prod_url:
+    SITE_URL = f'https://{_vercel_prod_url}'
+elif _vercel_url:
+    SITE_URL = f'https://{_vercel_url}'
+else:
+    SITE_URL = ''
 
 # Production hardening: apply stricter defaults when DEBUG is False
 if not DEBUG:

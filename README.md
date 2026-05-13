@@ -119,6 +119,25 @@ python manage.py runserver
 ```
 7. Acesse: `http://127.0.0.1:8000/`
 
+## SEO e Indexacao no Google
+
+Para facilitar a aparicao do site no Google:
+
+1. Defina a URL publica no ambiente de producao:
+```env
+SITE_URL=https://clube-de-programacao.vercel.app
+```
+2. Verifique se estas rotas estao acessiveis em producao:
+```text
+/robots.txt
+/sitemap.xml
+```
+3. No Google Search Console:
+- Adicione a propriedade do dominio
+- Envie o sitemap em: `https://seu-dominio/sitemap.xml`
+- Use "Inspecionar URL" para solicitar indexacao da pagina inicial
+4. Aguarde o rastreamento (normalmente de horas a alguns dias).
+
 ## Variáveis de Ambiente
 
 Consulte `.env.example` para a lista completa. As principais são:
